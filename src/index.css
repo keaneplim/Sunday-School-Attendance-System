@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@media print {
+    /* Hide everything on the page by default when printing */
+    body * {
+      visibility: hidden;
+    }
+  
+    /* Make only the report container and everything inside it visible */
+    #report-container, #report-container * {
+      visibility: visible;
+    }
+  
+    /* Position the report at the very top of the printed page */
+    #report-container {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+  
+    /* Prevent elements like cards from being split across two pages */
+    .stat-card {
+      break-inside: avoid;
+    }
+
+    /* ADD THIS NEW RULE to avoid the generated content in the pdf being cut */
+    .print-card {
+      break-inside: avoid;
+    }
+  }

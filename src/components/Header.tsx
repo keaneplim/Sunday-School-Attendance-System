@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => 
             </div>
             <div>
               <h1 className="font-semibold text-gray-900 text-[clamp(1.125rem,3vw,1.25rem)]">
-                Sunday School
+                RPCC Kids
               </h1>
               <p className="text-xs sm:text-sm text-gray-600">
                 Attendance System

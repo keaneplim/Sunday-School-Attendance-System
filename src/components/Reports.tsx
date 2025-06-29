@@ -138,8 +138,12 @@ export const Reports: React.FC = () => {
     },
   ];
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div id="report-container" className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">
@@ -148,7 +152,7 @@ export const Reports: React.FC = () => {
           <p className="text-gray-600">Analyze attendance patterns and trends</p>
         </div>
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2">
+        <button onClick={handlePrint} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2">
           <Download className="h-4 w-4" />
           <span>Export Report</span>
         </button>
@@ -229,11 +233,11 @@ export const Reports: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => (
           <div
             key={index}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
+            className="stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -254,7 +258,7 @@ export const Reports: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Session Breakdown */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="print-card bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Session Breakdown
           </h3>
@@ -290,7 +294,7 @@ export const Reports: React.FC = () => {
         </div>
 
         {/* Category Breakdown */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="print-card bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Age Group Breakdown
           </h3>
@@ -326,7 +330,7 @@ export const Reports: React.FC = () => {
       </div>
 
       {/* Recent Attendance */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
+      <div className="print-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Recent Attendance
         </h3>
