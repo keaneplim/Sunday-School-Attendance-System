@@ -167,3 +167,47 @@ app.delete('/api/students/:id', (req, res) => {
         });
     });
 });
+
+// NEW: Endpoint to clear all data
+app.delete('/api/clear-all-data', (req, res) => {
+    console.log("Attempting to clear all data...");
+
+    db.serialize(() => {
+        // Use a transaction to ensure all operations succeed or none do.
+        db.run('BEGIN TRANSACTION');
+
+        // It's important to delete from the attendance_records first
+        // because of the relationship with the students table.
+        db.run('DELETE FROM attendance_records', function(err) {
+            if (err) {
+                db.run('ROLLBACK');
+                res.status(400).json({ "error": err.message });
+                return;
+            }
+        });
+
+        // Next, delete all students
+        db.run('DELETE FROM students', function(err) {
+            if (err) {
+                db.run('ROLLBACK');
+                res.status(400).json({ "error": err.message });
+                return;
+            }
+        });
+
+        // If both deletions were successful, commit the transaction
+        db.run('COMMIT', (err) => {
+            if (err) {
+                res.status(400).json({ "error": "Commit failed", "details": err.message });
+                return;
+            }
+            console.log("All data cleared successfully.");
+            res.json({ message: "All data cleared successfully" });
+        });
+    });
+});
+
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});

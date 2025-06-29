@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, AlertTriangle } from 'lucide-react';
 import { getStudents, getAttendanceRecords, isSunday, getCurrentSession } from '../utils/database';
 import { Student, AttendanceRecord } from '../types';
 import { format } from 'date-fns';
@@ -88,6 +88,25 @@ export const Dashboard: React.FC = () => {
     },
   ];
 
+  {/* Uncomment this to enable data clearing
+  const handleClearData = async () => {
+    const confirmation1 = window.confirm("ATTENTION: Are you absolutely sure you want to clear all student and attendance data? This cannot be undone.");
+    if (confirmation1) {
+      const confirmation2 = window.confirm("FINAL CONFIRMATION: Please confirm you have a backup and wish to permanently delete all records.");
+      if (confirmation2) {
+        try {
+          await clearAllData();
+          alert("All application data has been cleared successfully.");
+          fetchData(); // This re-fetches the data to update the dashboard.
+        } catch (error) {
+          alert("An error occurred while clearing the data. Please check the server and try again.");
+          console.error(error);
+        }
+      }
+    }
+  };
+  */}
+
   if (isLoading) {
     return <div className="p-6 text-center">Loading dashboard...</div>;
   }
@@ -167,6 +186,33 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
+      {/*
+      // Ucomment this to clear data after it is backed up, if i show it to dashboard probably user will like to press it 
+      <div className="mt-12">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Admin Actions</h3>
+        <div className="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4">
+            <div className="flex items-start">
+                <div className="flex-shrink-0">
+                    <AlertTriangle className="h-5 w-5 text-red-500" aria-hidden="true" />
+                </div>
+                <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">Danger Zone</h3>
+                    <div className="mt-2 text-sm text-red-700">
+                        <p>Clearing all data will permanently delete every student and all attendance history. This action cannot be undone. Please make sure you have a backup first.</p>
+                    </div>
+                    <div className="mt-4">
+                        <button
+                            onClick={handleClearData}
+                            className="bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                        >
+                            Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div> */}
+
     </div>
   );
 };

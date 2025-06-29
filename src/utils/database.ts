@@ -45,6 +45,12 @@ export async function deleteStudent(id: string): Promise<void> {
   });
 }
 
+// Function to clear all data
+export async function clearAllData(): Promise<void> {
+  await fetch(`${API_URL}/clear-all-data`, {
+    method: 'DELETE',
+  });
+}
 
 // --- Attendance Functions ---
 
