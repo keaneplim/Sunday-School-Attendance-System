@@ -1,0 +1,245 @@
+import React, { useState, useEffect } from 'react';
+import { Search, Printer, UserCheck, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Database, calculateAge, getCategory, getCurrentSession, isSunday } from '../utils/database';
+import { Student } from '../types';
+import { format } from 'date-fns';
+
+export const CheckIn: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Student[]>([]);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const results = Database.searchStudents(searchQuery);
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchQuery]);
+
+  const handleCheckIn = async (student: Student) => {
+    if (!isSunday()) {
+      alert('Check-in is only available on Sundays!');
+      return;
+    }
+
+    setIsLoading(true);
+    setSelectedStudent(student);
+    
+    try {
+      // Record attendance
+      const currentSession = getCurrentSession();
+      Database.addAttendanceRecord(student.id, currentSession);
+      
+      // Simulate printing delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setIsCheckedIn(true);
+      
+      // Auto-reset after 3 seconds
+      setTimeout(() => {
+        setIsCheckedIn(false);
+        setSelectedStudent(null);
+        setSearchQuery('');
+        setSearchResults([]);
+      }, 3000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const NameTagPreview = ({ student }: { student: Student }) => {
+    const age = calculateAge(student.dateOfBirth);
+    const category = getCategory(age);
+    
+    return (
+      <div className="bg-white border-2 border-gray-300 rounded-lg p-4 w-80 mx-auto print:border-black print:p-2">
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-gray-900 mb-1">
+            {student.firstName} {student.lastName}
+          </h3>
+          <p className="text-lg text-blue-600 font-semibold mb-2">{category}</p>
+          {student.medicalNotes && (
+            <div className="flex items-center justify-center text-red-600 mb-2">
+              <AlertTriangle className="h-4 w-4 mr-1" />
+              Medical Alert
+            </div>
+          )}
+          <p className="text-sm text-gray-600">
+            {format(new Date(), 'MMM d, yyyy • h:mm a')}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const getCurrentSessionDisplay = () => {
+    if (!isSunday()) return 'It is not Sunday';
+    
+    const session = getCurrentSession();
+    switch (session) {
+      case '09:30': return '9:30 AM';
+      case '11:00': return '11:00 AM';
+      case '14:00': return '2:00 PM';
+      case '16:00': return '4:00 PM';
+      default: return 'Unknown';
+    }
+  };
+
+  if (isCheckedIn && selectedStudent) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <div className="text-center">
+          <div className="mb-8">
+            <div className="bg-green-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+              <UserCheck className="h-10 w-10 text-green-600" />
+            </div>
+            <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Check-in Successful!</h2>
+            <p className="text-gray-600">Name tag has been printed</p>
+          </div>
+          
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Name Tag Preview</h3>
+            <NameTagPreview student={selectedStudent} />
+          </div>
+          
+          <p className="text-sm text-gray-500">Returning to check-in in 3 seconds...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Student Check-in</h2>
+        <p className="text-gray-600">
+          {isSunday() 
+            ? "Search for a student and check them in for today's session"
+            : "Check-in is only available on Sundays"
+          }
+        </p>
+      </div>
+
+      {/* Sunday Notice */}
+      {!isSunday() && (
+        <div className="bg-orange-50 border border-orange-200 rounded-xl p-6 mb-6">
+          <div className="flex items-center space-x-3">
+            <AlertCircle className="h-6 w-6 text-orange-600" />
+            <div>
+              <h3 className="text-lg font-semibold text-orange-800">Check-in Not Available</h3>
+              <p className="text-orange-700">
+                Student check-in is only available on Sundays during Sunday School sessions.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <input
+            type="text"
+            placeholder={isSunday() ? "Search by first or last name..." : "Check-in disabled (not Sunday)"}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            disabled={!isSunday()}
+            className={`w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg ${
+              !isSunday() ? 'bg-gray-100 cursor-not-allowed' : ''
+            }`}
+            autoFocus={isSunday()}
+          />
+        </div>
+
+        {/* Search Results */}
+        {isSunday() && searchResults.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-sm text-gray-600 mb-3">Found {searchResults.length} student(s)</p>
+            {searchResults.map((student) => {
+              const age = calculateAge(student.dateOfBirth);
+              const category = getCategory(age);
+              
+              return (
+                <div
+                  key={student.id}
+                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {student.firstName} {student.lastName}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          Age {age} • {category} • Parent: {student.parentName}
+                        </p>
+                        {student.medicalNotes && (
+                          <div className="flex items-center text-red-600 text-sm mt-1">
+                            <AlertTriangle className="h-4 w-4 mr-1" />
+                            Medical: {student.medicalNotes}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => handleCheckIn(student)}
+                    disabled={isLoading}
+                    className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Printer className="h-4 w-4" />
+                        <span>Check-in & Print</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {isSunday() && searchQuery && searchResults.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-500 mb-4">No students found matching "{searchQuery}"</p>
+            <p className="text-sm text-gray-400">Try a different search term or add a new student</p>
+          </div>
+        )}
+      </div>
+
+      {/* Session Info */}
+      <div className={`border rounded-lg p-4 ${
+        isSunday() ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'
+      }`}>
+        <div className="flex items-center space-x-2">
+          <div className={`rounded-full p-1 ${
+            isSunday() ? 'bg-blue-600' : 'bg-gray-600'
+          }`}>
+            {isSunday() ? (
+              <UserCheck className="h-4 w-4 text-white" />
+            ) : (
+              <AlertCircle className="h-4 w-4 text-white" />
+            )}
+          </div>
+          <p className={`font-medium ${
+            isSunday() ? 'text-blue-800' : 'text-gray-800'
+          }`}>
+            Current Session: {getCurrentSessionDisplay()}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
