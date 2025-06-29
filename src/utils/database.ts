@@ -1,77 +1,79 @@
 import { Student, AttendanceRecord } from '../types';
 import { differenceInYears } from 'date-fns';
 
-const STUDENTS_KEY = 'sunday_school_students';
-const ATTENDANCE_KEY = 'sunday_school_attendance';
+const API_URL = 'http://localhost:4000/api'; // The address of our backend
 
-export class Database {
-  static getStudents(): Student[] {
-    const data = localStorage.getItem(STUDENTS_KEY);
-    return data ? JSON.parse(data) : [];
-  }
+// --- Student Functions ---
 
-  static saveStudents(students: Student[]): void {
-    localStorage.setItem(STUDENTS_KEY, JSON.stringify(students));
-  }
-
-  static addStudent(student: Omit<Student, 'id' | 'createdAt'>): Student {
-    const students = this.getStudents();
-    const newStudent: Student = {
-      ...student,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-    };
-    students.push(newStudent);
-    this.saveStudents(students);
-    return newStudent;
-  }
-
-  static updateStudent(id: string, updates: Partial<Student>): Student | null {
-    const students = this.getStudents();
-    const index = students.findIndex(s => s.id === id);
-    if (index === -1) return null;
-    
-    students[index] = { ...students[index], ...updates };
-    this.saveStudents(students);
-    return students[index];
-  }
-
-  static getAttendanceRecords(): AttendanceRecord[] {
-    const data = localStorage.getItem(ATTENDANCE_KEY);
-    return data ? JSON.parse(data) : [];
-  }
-
-  static saveAttendanceRecords(records: AttendanceRecord[]): void {
-    localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(records));
-  }
-
-  static addAttendanceRecord(studentId: string, sessionTime: string): AttendanceRecord {
-    const records = this.getAttendanceRecords();
-    const newRecord: AttendanceRecord = {
-      id: crypto.randomUUID(),
-      studentId,
-      sessionTime,
-      checkinTimestamp: new Date().toISOString(),
-    };
-    records.push(newRecord);
-    this.saveAttendanceRecords(records);
-    return newRecord;
-  }
-
-  static searchStudents(query: string): Student[] {
-    const students = this.getStudents();
-    const lowerQuery = query.toLowerCase();
-    return students.filter(student => 
-      student.firstName.toLowerCase().includes(lowerQuery) ||
-      student.lastName.toLowerCase().includes(lowerQuery)
-    );
-  }
-
-  static getStudentById(id: string): Student | null {
-    const students = this.getStudents();
-    return students.find(s => s.id === id) || null;
-  }
+export async function getStudents(): Promise<Student[]> {
+  const response = await fetch(`${API_URL}/students`);
+  const result = await response.json();
+  return result.data || [];
 }
+
+export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>): Promise<Student> {
+  const newStudent: Student = {
+    ...student,
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+  };
+
+  await fetch(`${API_URL}/students`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(newStudent),
+  });
+  return newStudent;
+}
+
+export async function updateStudent(id: string, updates: Partial<Student>): Promise<void> {
+  await fetch(`${API_URL}/students/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(updates),
+  });
+}
+
+// NEW: Function to delete a student
+export async function deleteStudent(id: string): Promise<void> {
+  await fetch(`${API_URL}/students/${id}`, {
+    method: 'DELETE',
+  });
+}
+
+
+// --- Attendance Functions ---
+
+export async function getAttendanceRecords(): Promise<AttendanceRecord[]> {
+  const response = await fetch(`${API_URL}/attendance`);
+  const result = await response.json();
+  return result.data || [];
+}
+
+export async function addAttendanceRecord(studentId: string, sessionTime: string): Promise<AttendanceRecord> {
+  const newRecord: AttendanceRecord = {
+    id: crypto.randomUUID(),
+    studentId,
+    sessionTime,
+    checkinTimestamp: new Date().toISOString(),
+  };
+
+  await fetch(`${API_URL}/attendance`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(newRecord),
+  });
+  return newRecord;
+}
+
+
+// --- Helper Functions (No changes needed here) ---
 
 export function calculateAge(dateOfBirth: string): number {
   return differenceInYears(new Date(), new Date(dateOfBirth));

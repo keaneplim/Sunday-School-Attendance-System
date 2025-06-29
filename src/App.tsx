@@ -4,15 +4,9 @@ import { Dashboard } from './components/Dashboard';
 import { CheckIn } from './components/CheckIn';
 import { Students } from './components/Students';
 import { Reports } from './components/Reports';
-import { initializeSampleData } from './utils/sampleData';
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard');
-
-  useEffect(() => {
-    // Initialize sample data on first load
-    initializeSampleData();
-  }, []);
 
   const renderCurrentView = () => {
     switch (currentView) {

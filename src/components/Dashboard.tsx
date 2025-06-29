@@ -1,12 +1,38 @@
-import React from 'react';
-import { Users, Clock, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
-import { Database, isSunday } from '../utils/database';
+import React, { useState, useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
+import { getStudents, getAttendanceRecords, isSunday, getCurrentSession } from '../utils/database';
+import { Student, AttendanceRecord } from '../types';
 import { format } from 'date-fns';
 
 export const Dashboard: React.FC = () => {
-  const students = Database.getStudents();
-  const attendanceRecords = Database.getAttendanceRecords();
+  const [students, setStudents] = useState<Student[]>([]);
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const [studentsData, attendanceData] = await Promise.all([
+          getStudents(),
+          getAttendanceRecords()
+        ]);
+        setStudents(studentsData);
+        setAttendanceRecords(attendanceData);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+        // Optionally, set an error state here to show a message to the user
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
   
+  // Helper function to find a student by ID from the fetched list
+  const getStudentById = (id: string) => students.find(s => s.id === id);
+
   const today = format(new Date(), 'yyyy-MM-dd');
   const todayAttendance = attendanceRecords.filter(record => 
     record.checkinTimestamp.startsWith(today)
@@ -25,23 +51,22 @@ export const Dashboard: React.FC = () => {
     .sort((a, b) => new Date(b.checkinTimestamp).getTime() - new Date(a.checkinTimestamp).getTime())
     .slice(0, 10)
     .map(record => {
-      const student = Database.getStudentById(record.studentId);
+      const student = getStudentById(record.studentId);
       return { ...record, student };
     });
 
   const currentSessionDisplay = () => {
     if (!isSunday()) {
-      return 'It is not Sunday';
+      return 'Not Sunday';
     }
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const time = hours * 100 + minutes;
-
-    if (time < 1030) return '9:30 AM';
-    if (time < 1330) return '11:00 AM';
-    if (time < 1500) return '2:00 PM';
-    return '4:00 PM';
+    const session = getCurrentSession();
+    switch (session) {
+      case '09:30': return '9:30 AM';
+      case '11:00': return '11:00 AM';
+      case '14:00': return '2:00 PM';
+      case '16:00': return '4:00 PM';
+      default: return 'Not Sunday';
+    }
   };
 
   const stats = [
@@ -59,9 +84,13 @@ export const Dashboard: React.FC = () => {
     },
     {
       title: 'This Week',
-      value: todayAttendance.length,
+      value: attendanceRecords.filter(r => new Date(r.checkinTimestamp) > new Date(new Date().setDate(new Date().getDate() - 7))).length,
     },
   ];
+
+  if (isLoading) {
+    return <div className="p-6 text-center">Loading dashboard...</div>;
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto">
@@ -89,7 +118,6 @@ export const Dashboard: React.FC = () => {
         </div>
       )}
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => (
           <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -102,35 +130,28 @@ export const Dashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Session Attendance */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-[clamp(1.125rem,3vw,1.25rem)]">Today's Sessions</h3>
+          <h3 className="font-semibold text-gray-900 mb-4 text-[clamp(1.125rem,3vw,1.25rem)]">Today's Sessions</h3>
           <div className="space-y-4">
-            {[
-              { time: '09:30', label: '9:30 AM Service', count: sessionCounts['09:30'] },
-              { time: '11:00', label: '11:00 AM Service', count: sessionCounts['11:00'] },
-              { time: '14:00', label: '2:00 PM Service', count: sessionCounts['14:00'] },
-              { time: '16:00', label: '4:00 PM Service', count: sessionCounts['16:00'] },
-            ].map((session) => (
-              <div key={session.time} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+            {Object.entries(sessionCounts).map(([time, count]) => (
+              <div key={time} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
                 <div>
-                  <p className="font-medium text-sm sm:text-base text-gray-900 text-[clamp(0.875rem,2vw,1rem)]">{session.label}</p>
-                  <p className="text-xs sm:text-sm text-gray-600">{session.count} students checked in</p>
+                  <p className="font-medium text-gray-900 text-[clamp(0.875rem,2vw,1rem)]">{time === '09:30' ? '9:30 AM Service' : time === '11:00' ? '11:00 AM Service' : time === '14:00' ? '2:00 PM Service' : '4:00 PM Service'}</p>
+                  <p className="text-xs sm:text-sm text-gray-600">{count} students checked in</p>
                 </div>
-                <div className="text-xl sm:text-2xl font-bold text-blue-600 text-[clamp(1.25rem,4vw,1.5rem)]">{session.count}</div>
+                <div className="font-bold text-blue-600 text-[clamp(1.25rem,4vw,1.5rem)]">{count}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Recent Check-ins */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 text-[clamp(1.125rem,3vw,1.25rem)]">Recent Check-ins</h3>
+          <h3 className="font-semibold text-gray-900 mb-4 text-[clamp(1.125rem,3vw,1.25rem)]">Recent Check-ins</h3>
           <div className="space-y-3">
             {recentCheckIns.length > 0 ? recentCheckIns.map((checkIn) => (
               <div key={checkIn.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
                 <div>
-                  <p className="font-medium text-sm sm:text-base text-gray-900 text-[clamp(0.875rem,2vw,1rem)]">
+                  <p className="font-medium text-gray-900 text-[clamp(0.875rem,2vw,1rem)]">
                     {checkIn.student ? `${checkIn.student.firstName} ${checkIn.student.lastName}` : 'Unknown Student'}
                   </p>
                   <p className="text-xs sm:text-sm text-gray-600">
