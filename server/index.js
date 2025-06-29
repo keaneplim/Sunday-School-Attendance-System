@@ -206,8 +206,3 @@ app.delete('/api/clear-all-data', (req, res) => {
         });
     });
 });
-
-
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});

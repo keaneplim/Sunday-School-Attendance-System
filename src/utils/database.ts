@@ -1,5 +1,5 @@
 import { Student, AttendanceRecord } from '../types';
-import { differenceInYears } from 'date-fns';
+import { differenceInYears, format } from 'date-fns';
 
 const API_URL = 'http://localhost:4000/api'; // The address of our backend
 
@@ -111,4 +111,82 @@ export function getCurrentSession(): string {
   if (time < 1330) return '11:00';
   if (time < 1500) return '14:00';
   return '16:00';
+}
+
+// This is the only function you need to replace in this file.
+// Find the old printNameTag function and replace it with this one.
+
+// Find the old printNameTag function and replace it with this new one.
+
+export function printNameTag(student: Student) {
+  const age = calculateAge(student.dateOfBirth);
+  const category = getCategory(age);
+
+  const content = `
+    <html>
+      <head>
+        <title>Print Name Tag</title>
+        <style>
+          @page {
+            size: 90mm 38mm;
+            margin: 0;
+          }
+          body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center; 
+          }
+          .tag {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            /* POINT 1: Change 'center' to 'flex-start' to align to the top */
+            justify-content: flex-start; 
+            align-items: center;
+            /* POINT 2: Add some padding at the top */
+            padding-top: 5px; 
+          }
+          h3 {
+            font-size: 35pt;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+            padding: 0;
+          }
+          p {
+            font-size: 20pt;
+            font-weight: 600;
+            color: #2563eb; /* blue */
+            margin: 0;
+            padding: 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="tag">
+          <h3>${student.firstName} ${student.lastName}</h3>
+          <p>${category}</p>
+        </div>
+      </body>
+    </html>
+  `;
+
+  const printWindow = window.open('', '', 'height=200,width=400');
+  
+  if (printWindow) {
+    printWindow.document.write(content);
+    
+    printWindow.document.close();
+    printWindow.onload = function() {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    };
+  }
 }

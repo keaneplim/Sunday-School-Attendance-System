@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Printer, UserCheck, AlertTriangle, AlertCircle } from 'lucide-react';
-import { addAttendanceRecord, getStudents, calculateAge, getCategory, getCurrentSession, isSunday } from '../utils/database';
+import { addAttendanceRecord, getStudents, calculateAge, getCategory, getCurrentSession, isSunday, printNameTag } from '../utils/database';
 import { Student } from '../types';
 import { format } from 'date-fns';
 
@@ -46,17 +46,18 @@ export const CheckIn: React.FC = () => {
       const currentSession = getCurrentSession();
       await addAttendanceRecord(student.id, currentSession);
       
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Call the new print function
+      printNameTag(student);
+
       setIsCheckedIn(true);
       
+    } finally {
+      setIsLoading(false);
       setTimeout(() => {
         setIsCheckedIn(false);
         setSelectedStudent(null);
         setSearchQuery('');
-        setSearchResults([]);
       }, 3000);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -65,7 +66,7 @@ export const CheckIn: React.FC = () => {
     const category = getCategory(age);
     
     return (
-      <div className="bg-white border-2 border-gray-300 rounded-lg p-4 w-80 mx-auto print:border-black print:p-2">
+      <div className="bg-white border-2 border-gray-300 rounded-lg p-4 w-80 mx-auto">
         <div className="text-center">
           <h3 className="text-xl font-bold text-gray-900 mb-1">{student.firstName} {student.lastName}</h3>
           <p className="text-lg text-blue-600 font-semibold mb-2">{category}</p>
@@ -75,23 +76,10 @@ export const CheckIn: React.FC = () => {
               Medical Alert
             </div>
           )}
-          <p className="text-sm text-gray-600">{format(new Date(), 'MMM d, yyyy • h:mm a')}</p>
+          <p className="text-sm text-gray-600">{format(new Date(), 'MMM d, hh:mm a')}</p>
         </div>
       </div>
     );
-  };
-
-  const getCurrentSessionDisplay = () => {
-    if (!isSunday()) return 'It is not Sunday';
-    
-    const session = getCurrentSession();
-    switch (session) {
-      case '09:30': return '9:30 AM';
-      case '11:00': return '11:00 AM';
-      case '14:00': return '2:00 PM';
-      case '16:00': return '4:00 PM';
-      default: return 'Unknown';
-    }
   };
 
   if (isCheckedIn && selectedStudent) {
@@ -103,13 +91,12 @@ export const CheckIn: React.FC = () => {
               <UserCheck className="h-10 w-10 text-green-600" />
             </div>
             <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Check-in Successful!</h2>
-            <p className="text-gray-600">Name tag has been printed</p>
+            <p className="text-gray-600">Printing name tag...</p>
           </div>
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Name Tag Preview</h3>
             <NameTagPreview student={selectedStudent} />
           </div>
-          <p className="text-sm text-gray-500">Returning to check-in in 3 seconds...</p>
         </div>
       </div>
     );

@@ -88,7 +88,7 @@ export const Dashboard: React.FC = () => {
     },
   ];
 
-  {/* Uncomment this to enable data clearing
+  
   const handleClearData = async () => {
     const confirmation1 = window.confirm("ATTENTION: Are you absolutely sure you want to clear all student and attendance data? This cannot be undone.");
     if (confirmation1) {
@@ -105,7 +105,7 @@ export const Dashboard: React.FC = () => {
       }
     }
   };
-  */}
+  
 
   if (isLoading) {
     return <div className="p-6 text-center">Loading dashboard...</div>;
@@ -186,7 +186,7 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
       </div>
-      {/*
+      
       // Ucomment this to clear data after it is backed up, if i show it to dashboard probably user will like to press it 
       <div className="mt-12">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Admin Actions</h3>
@@ -211,7 +211,7 @@ export const Dashboard: React.FC = () => {
                 </div>
             </div>
         </div>
-      </div> */}
+      </div> 
 
     </div>
   );
