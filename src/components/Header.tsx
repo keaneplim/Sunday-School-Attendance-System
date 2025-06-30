@@ -30,7 +30,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => 
                  Kids
               </h1>
               <p className="text-xs sm:text-sm text-gray-600">
-                Attendance System
+                Attendance
               </p>
             </div>
           </div>

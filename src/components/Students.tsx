@@ -11,12 +11,16 @@ const StudentForm = ({
   handleSubmit,
   resetForm,
   editingStudent,
+  phoneError,
+  handlePhoneChange,
 }: {
   formData: any;
   setFormData: any;
   handleSubmit: (e: React.FormEvent) => void;
   resetForm: () => void;
   editingStudent: Student | null;
+  phoneError: string;
+  handlePhoneChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
     <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -25,7 +29,7 @@ const StudentForm = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">First Name Only *</label>
           <input
             type="text"
             required
@@ -35,7 +39,7 @@ const StudentForm = ({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Last Name Only *</label>
           <input
             type="text"
             required
@@ -72,9 +76,10 @@ const StudentForm = ({
             type="tel"
             required
             value={formData.parentPhone}
-            onChange={(e) => setFormData({ ...formData, parentPhone: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            onChange={handlePhoneChange}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
           />
+          {phoneError && <p className="mt-2 text-sm text-red-600">{phoneError}</p>}
         </div>
       </div>
       <div>
@@ -116,6 +121,10 @@ export const Students: React.FC = () => {
   });
 
   // Fetch students from the backend when the component first loads
+
+  const [phoneError, setPhoneError] = useState('');
+
+
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -135,6 +144,20 @@ export const Students: React.FC = () => {
       )
     : students;
 
+
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      const phoneRegex = /^[0-9]*$/; // Allows empty string and numbers
+  
+      setFormData({ ...formData, parentPhone: value });
+  
+      if (!phoneRegex.test(value)) {
+        setPhoneError("Please enter numbers only.");
+      } else {
+        setPhoneError(""); // Clear error if valid
+      }
+    };
+
   const resetForm = () => {
     setFormData({
       firstName: '',
@@ -146,11 +169,24 @@ export const Students: React.FC = () => {
     });
     setShowAddForm(false);
     setEditingStudent(null);
+    setPhoneError(''); // Also reset the error on form reset
+
   };
 
   // This function is now async to work with the backend
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const fullName = `${formData.firstName} ${formData.lastName}`;
+    if (fullName.length > 17) {
+      alert("Validation Error: The combined First Name and Last Name cannot be more than 17 characters long. Please shorten the name.");
+      return; // This stops the function from proceeding
+    }
+
+    if (phoneError || !formData.parentPhone) {
+      alert("Please fix the errors before submitting.");
+      return;
+    }
 
     if (editingStudent) {
       await updateStudent(editingStudent.id, formData);
@@ -192,7 +228,7 @@ export const Students: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Student Management</h2>
-          <p className="text-sm sm:text-base text-gray-600">{students.length} students registered</p>
+          
         </div>
         <button onClick={() => setShowAddForm(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2">
           <Plus className="h-4 w-4" />
@@ -207,6 +243,8 @@ export const Students: React.FC = () => {
           handleSubmit={handleSubmit}
           resetForm={resetForm}
           editingStudent={editingStudent}
+          phoneError={phoneError}
+          handlePhoneChange={handlePhoneChange}
         />
       )}
 

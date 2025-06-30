@@ -126,6 +126,8 @@ export function printNameTag(student: Student) {
   const age = calculateAge(student.dateOfBirth);
   const category = getCategory(age);
 
+  
+
   const content = `
     <html>
       <head>
@@ -158,17 +160,18 @@ export function printNameTag(student: Student) {
           .main-info {
             text-align: center;
           }
+            
           h3 {
             font-size: 26pt;
             font-weight: bold;
             margin: 0;
             padding: 0;
-            text-decoration: underline
+            /* text-decoration: underline */
           }
           .category {
             /* Positioned at the top right */
             position: absolute;
-            bottom: 45px;
+            bottom: 35px;
             right: 5px;
             text-align: right;
             font-size: 15pt; /* Smaller font size for parent info */
@@ -186,6 +189,14 @@ export function printNameTag(student: Student) {
           .parent-info span {
             display: block; /* Makes name and number appear on separate lines */
           }
+
+          hr {
+            width: 100%; /* Make the line slightly shorter than the tag */
+            border: none;
+            border-top: 2px solid black;
+            margin: 8px 0; /* Add some space above and below the line */
+          }
+
         </style>
       </head>
       <body onload="window.print()">
@@ -193,7 +204,7 @@ export function printNameTag(student: Student) {
           <div class="main-info">
             <h3>${student.firstName} ${student.lastName}</h3>
           </div>
-
+          <hr />
           <div class="footer">
             <div class="parent-info">
               <span>${student.parentName}</span>
