@@ -77,7 +77,7 @@ app.post('/api/students', (req, res) => {
 
 // Update a student
 app.put('/api/students/:id', (req, res) => {
-    const { firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes } = req.body;
+    const { nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes } = req.body;
     const sql = `UPDATE students SET 
         nickname = ?,
         firstName = ?, 

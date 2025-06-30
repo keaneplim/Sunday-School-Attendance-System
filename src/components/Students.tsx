@@ -41,7 +41,7 @@ const StudentForm = ({
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">First Name Only *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
           <input
             type="text"
             name="firstName"
@@ -53,7 +53,7 @@ const StudentForm = ({
         {formErrors.firstName && <p className="mt-2 text-sm text-red-600">{formErrors.firstName}</p>}
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Last Name Only *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
           <input
               type="text"
               name="lastName"
