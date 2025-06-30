@@ -93,8 +93,12 @@ export function getCategory(age: number): string {
 }
 
 export function isSunday(): boolean {
-  const today = new Date();
-  return today.getDay() === 0; // Sunday is 0
+  // Return true to enable check-in on any day for testing purposes
+  return true; 
+  
+  // The original code is commented out below so you can easily switch back
+  // const today = new Date();
+  // return today.getDay() === 0; // Sunday is 0
 }
 
 export function getCurrentSession(): string {
@@ -126,20 +130,20 @@ export function printNameTag(student: Student) {
     <html>
       <head>
         <title>Print Name Tag</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
         <style>
           @page {
             size: 90mm 38mm;
             margin: 0;
           }
           body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            display: flex;
-            align-items: center; 
           }
           .tag {
             width: 100%;
@@ -147,31 +151,58 @@ export function printNameTag(student: Student) {
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            /* POINT 1: Change 'center' to 'flex-start' to align to the top */
             justify-content: flex-start; 
             align-items: center;
-            /* POINT 2: Add some padding at the top */
-            padding-top: 5px; 
+            padding-top: 8px; 
+          }
+          .main-info {
+            text-align: center;
           }
           h3 {
-            font-size: 35pt;
+            font-size: 26pt;
             font-weight: bold;
-            margin: 0 0 5px 0;
-            padding: 0;
-          }
-          p {
-            font-size: 20pt;
-            font-weight: 600;
-            color: #2563eb; /* blue */
             margin: 0;
             padding: 0;
           }
+          .category {
+            /* Positioned at the top right */
+            position: absolute;
+            bottom: 45px;
+            right: 5px;
+            text-align: right;
+            font-size: 15pt; /* Smaller font size for parent info */
+            color: #4b5563; /* gray-600 */
+          }
+          .parent-info {
+            /* Positioned at the bottom left */
+            position: absolute;
+            bottom: 30px;
+            left: 5px;
+            text-align: left;
+            font-size: 15pt; /* Smaller font size for parent info */
+            color: #4b5563; /* gray-600 */
+          }
+          .parent-info span {
+            display: block; /* Makes name and number appear on separate lines */
+          }
         </style>
       </head>
-      <body>
+      <body onload="window.print()">
         <div class="tag">
-          <h3>${student.firstName} ${student.lastName}</h3>
-          <p>${category}</p>
+          <div class="main-info">
+            <h3>${student.firstName} ${student.lastName}</h3>
+          </div>
+
+          <div class="footer">
+            <div class="parent-info">
+              <span>${student.parentName}</span>
+              <span>${student.parentPhone}</span>
+            </div>
+            <div class="category">
+              ${category}
+            </div>
+          </div>
+          
         </div>
       </body>
     </html>
