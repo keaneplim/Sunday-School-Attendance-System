@@ -7,20 +7,18 @@ import { format } from 'date-fns';
 // This StudentForm component remains unchanged and should be at the top of the file.
 const StudentForm = ({
   formData,
-  setFormData,
   handleSubmit,
   resetForm,
   editingStudent,
-  phoneError,
-  handlePhoneChange,
+  formErrors,
+  handleInputChange,
 }: {
   formData: any;
-  setFormData: any;
   handleSubmit: (e: React.FormEvent) => void;
   resetForm: () => void;
   editingStudent: Student | null;
-  phoneError: string;
-  handlePhoneChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  formErrors: { firstName?: string; lastName?: string; nickname?: string; parentPhone?: string; };
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
     <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -29,33 +27,52 @@ const StudentForm = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
+          {/* 1. Update the label */}
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nickname *</label>
+          <input
+              type="text"
+              name="nickname"
+              required 
+              value={formData.nickname}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${formErrors.nickname ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+          />
+          {formErrors.nickname && <p className="mt-2 text-sm text-red-600">{formErrors.nickname}</p>}
+        </div>
+        
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">First Name Only *</label>
           <input
             type="text"
+            name="firstName"
             required
             value={formData.firstName}
-            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
+            onChange={handleInputChange}
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${formErrors.firstName ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+        />
+        {formErrors.firstName && <p className="mt-2 text-sm text-red-600">{formErrors.firstName}</p>}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Last Name Only *</label>
           <input
-            type="text"
-            required
-            value={formData.lastName}
-            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              type="text"
+              name="lastName"
+              required
+              value={formData.lastName}
+              onChange={handleInputChange}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${formErrors.lastName ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
           />
+          {formErrors.lastName && <p className="mt-2 text-sm text-red-600">{formErrors.lastName}</p>}
         </div>
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label>
         <input
           type="date"
+          name="dateOfBirth"
           required
           value={formData.dateOfBirth}
-          onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+          onChange={handleInputChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
@@ -64,9 +81,10 @@ const StudentForm = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">Parent/Guardian Name *</label>
           <input
             type="text"
+            name="parentName"
             required
             value={formData.parentName}
-            onChange={(e) => setFormData({ ...formData, parentName: e.target.value })}
+            onChange={handleInputChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -74,19 +92,23 @@ const StudentForm = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">Parent Phone Number *</label>
           <input
             type="tel"
+            name="parentPhone"  // The name should be "parentPhone"
             required
-            value={formData.parentPhone}
-            onChange={handlePhoneChange}
-            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${phoneError ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
+            value={formData.parentPhone} // The value should be formData.parentPhone
+            onChange={handleInputChange}
+            // The className should check for formErrors.parentPhone
+            className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${formErrors.parentPhone ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
           />
-          {phoneError && <p className="mt-2 text-sm text-red-600">{phoneError}</p>}
+          {/* The error message should check for formErrors.parentPhone */}
+          {formErrors.parentPhone && <p className="mt-2 text-sm text-red-600">{formErrors.parentPhone}</p>}
         </div>
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Medical/Allergy Notes</label>
         <textarea
+          name="medicalNotes"
           value={formData.medicalNotes}
-          onChange={(e) => setFormData({ ...formData, medicalNotes: e.target.value })}
+          onChange={handleInputChange}
           rows={3}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="Any allergies, medical conditions, or special instructions..."
@@ -112,6 +134,7 @@ export const Students: React.FC = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [formData, setFormData] = useState({
+    nickname: '',
     firstName: '',
     lastName: '',
     dateOfBirth: '',
@@ -122,7 +145,12 @@ export const Students: React.FC = () => {
 
   // Fetch students from the backend when the component first loads
 
-  const [phoneError, setPhoneError] = useState('');
+  const [formErrors, setFormErrors] = useState({
+    nickname: '',
+    firstName: '',
+    lastName: '',
+    parentPhone: ''
+  });
 
 
   useEffect(() => {
@@ -145,21 +173,28 @@ export const Students: React.FC = () => {
     : students;
 
 
-    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      const phoneRegex = /^[0-9]*$/; // Allows empty string and numbers
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { name, value } = e.target;
+      setFormData({ ...formData, [name]: value });
   
-      setFormData({ ...formData, parentPhone: value });
-  
-      if (!phoneRegex.test(value)) {
-        setPhoneError("Please enter numbers only.");
-      } else {
-        setPhoneError(""); // Clear error if valid
+      let error = '';
+      if (name === 'nickname') {
+        if (value.trim() === '') error = 'This field is required.';
+        else if (value.length > 17) error = 'Nickname cannot be more than 17 characters.';
+      } else if (name === 'firstName' || name === 'lastName') {
+        if (value.trim() === '') error = 'This field is required.';
+      } else if (name === 'parentPhone') {
+        const phoneRegex = /^[0-9]*$/;
+        if (value.trim() !== '' && !phoneRegex.test(value)) {
+          error = "Please enter numbers only.";
+        }
       }
+      setFormErrors(prevErrors => ({ ...prevErrors, [name]: error }));
     };
 
   const resetForm = () => {
     setFormData({
+      nickname: '',
       firstName: '',
       lastName: '',
       dateOfBirth: '',
@@ -169,7 +204,7 @@ export const Students: React.FC = () => {
     });
     setShowAddForm(false);
     setEditingStudent(null);
-    setPhoneError(''); // Also reset the error on form reset
+    setFormErrors({ nickname: '', firstName: '', lastName: '', parentPhone: '' }); 
 
   };
 
@@ -177,16 +212,10 @@ export const Students: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const fullName = `${formData.firstName} ${formData.lastName}`;
-    if (fullName.length > 17) {
-      alert("Validation Error: The combined First Name and Last Name cannot be more than 17 characters long. Please shorten the name.");
-      return; // This stops the function from proceeding
-    }
-
-    if (phoneError || !formData.parentPhone) {
+    if (Object.values(formErrors).some(error => error !== '') || !formData.nickname || !formData.firstName || !formData.lastName || !formData.parentPhone) {
       alert("Please fix the errors before submitting.");
       return;
-    }
+  }
 
     if (editingStudent) {
       await updateStudent(editingStudent.id, formData);
@@ -201,6 +230,7 @@ export const Students: React.FC = () => {
   const handleEdit = (student: Student) => {
     setEditingStudent(student);
     setFormData({
+      nickname: student.nickname || '', // Add the '|| ""' fallback
       firstName: student.firstName,
       lastName: student.lastName,
       dateOfBirth: student.dateOfBirth,
@@ -239,12 +269,11 @@ export const Students: React.FC = () => {
       {showAddForm && (
         <StudentForm
           formData={formData}
-          setFormData={setFormData}
           handleSubmit={handleSubmit}
           resetForm={resetForm}
           editingStudent={editingStudent}
-          phoneError={phoneError}
-          handlePhoneChange={handlePhoneChange}
+          formErrors={formErrors}
+          handleInputChange={handleInputChange}
         />
       )}
 

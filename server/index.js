@@ -22,6 +22,7 @@ const db = new sqlite3.Database('./sundayschool.db', (err) => {
 db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS students (
         id TEXT PRIMARY KEY,
+        nickname TEXT NOT NULL,
         firstName TEXT NOT NULL,
         lastName TEXT NOT NULL,
         dateOfBirth TEXT NOT NULL,
@@ -59,9 +60,9 @@ app.get('/api/students', (req, res) => {
 
 // Add a new student
 app.post('/api/students', (req, res) => {
-    const { id, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt } = req.body;
-    const sql = `INSERT INTO students (id, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt) VALUES (?,?,?,?,?,?,?,?)`;
-    db.run(sql, [id, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt], function(err) {
+    const { id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt } = req.body;
+    const sql = `INSERT INTO students (id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt) VALUES (?,?,?,?,?,?,?,?)`;
+    db.run(sql, [id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt], function(err) {
         if (err) {
             res.status(400).json({ "error": err.message });
             return;
@@ -78,6 +79,7 @@ app.post('/api/students', (req, res) => {
 app.put('/api/students/:id', (req, res) => {
     const { firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes } = req.body;
     const sql = `UPDATE students SET 
+        nickname = ?,
         firstName = ?, 
         lastName = ?, 
         dateOfBirth = ?, 
@@ -85,7 +87,7 @@ app.put('/api/students/:id', (req, res) => {
         parentPhone = ?, 
         medicalNotes = ? 
         WHERE id = ?`;
-    db.run(sql, [firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, req.params.id], function(err) {
+    db.run(sql, [nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, req.params.id], function(err) {
         if (err) {
             res.status(400).json({ "error": err.message });
             return;
