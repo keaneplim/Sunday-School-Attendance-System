@@ -202,7 +202,7 @@ export function printNameTag(student: Student) {
       <body onload="window.print()">
         <div class="tag">
           <div class="main-info">
-            <h3>${student.firstName} ${student.lastName}</h3>
+            <h3>${student.nickname} ${student.lastName}</h3>
           </div>
           <hr />
           <div class="footer">
