@@ -86,9 +86,9 @@ export function calculateAge(dateOfBirth: string): number {
 }
 
 export function getCategory(age: number): string {
-  if (age <= 2) return 'Nursery';
-  if (age <= 5) return 'Preschool';
-  if (age <= 11) return 'Elementary';
+  if (age <= 2) return 'Love';
+  if (age <= 5) return 'Hope';
+  if (age <= 11) return 'Kindness';
   return 'Teenager';
 }
 
@@ -153,7 +153,7 @@ export function printNameTag(student: Student) {
             flex-direction: column;
             justify-content: flex-start; 
             align-items: center;
-            padding-top: 8px; 
+            padding-top: -5px; 
           }
           .main-info {
             text-align: center;
@@ -163,6 +163,7 @@ export function printNameTag(student: Student) {
             font-weight: bold;
             margin: 0;
             padding: 0;
+            text-decoration: underline
           }
           .category {
             /* Positioned at the top right */
@@ -179,7 +180,7 @@ export function printNameTag(student: Student) {
             bottom: 30px;
             left: 5px;
             text-align: left;
-            font-size: 15pt; /* Smaller font size for parent info */
+            font-size: 10pt; /* Smaller font size for parent info */
             color: #4b5563; /* gray-600 */
           }
           .parent-info span {
