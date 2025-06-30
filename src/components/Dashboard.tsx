@@ -1,32 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
-import { getStudents, getAttendanceRecords, isSunday, getCurrentSession } from '../utils/database';
+import { getStudents, getAttendanceRecords, isSunday, getCurrentSession, clearAllData } from '../utils/database';
 import { Student, AttendanceRecord } from '../types';
 import { format } from 'date-fns';
+import { ADMIN_PASSWORD_CLEAR_DATA } from '../App'; // Import the admin password
+
 
 export const Dashboard: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const [studentsData, attendanceData] = await Promise.all([
-          getStudents(),
-          getAttendanceRecords()
-        ]);
-        setStudents(studentsData);
-        setAttendanceRecords(attendanceData);
-      } catch (error) {
-        console.error("Failed to fetch dashboard data:", error);
-        // Optionally, set an error state here to show a message to the user
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [studentsData, attendanceData] = await Promise.all([
+        getStudents(),
+        getAttendanceRecords()
+      ]);
+      setStudents(studentsData);
+      setAttendanceRecords(attendanceData);
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
   
@@ -90,19 +91,26 @@ export const Dashboard: React.FC = () => {
 
   
   const handleClearData = async () => {
-    const confirmation1 = window.confirm("ATTENTION: Are you absolutely sure you want to clear all student and attendance data? This cannot be undone.");
-    if (confirmation1) {
-      const confirmation2 = window.confirm("FINAL CONFIRMATION: Please confirm you have a backup and wish to permanently delete all records.");
-      if (confirmation2) {
-        try {
-          await clearAllData();
-          alert("All application data has been cleared successfully.");
-          fetchData(); // This re-fetches the data to update the dashboard.
-        } catch (error) {
-          alert("An error occurred while clearing the data. Please check the server and try again.");
-          console.error(error);
+    const password = prompt("This is a destructive action. Please enter the admin password to proceed.");
+
+    if (password === null) { // User clicked 'Cancel'
+        return; 
+    }
+
+    if (password === ADMIN_PASSWORD_CLEAR_DATA) {
+        const confirmation = window.confirm("Password correct. FINAL CONFIRMATION: Are you sure you want to permanently delete all records?");
+        if (confirmation) {
+            try {
+                await clearAllData();
+                alert("All application data has been cleared successfully.");
+                fetchData(); // Refresh the dashboard data
+            } catch (error) {
+                alert("An error occurred while clearing the data. Please check the server and try again.");
+                console.error(error);
+            }
         }
-      }
+    } else {
+        alert("Incorrect password. Data clearing has been cancelled.");
     }
   };
   
@@ -187,7 +195,7 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      // Ucomment this to clear data after it is backed up, if i show it to dashboard probably user will like to press it 
+      {/* Uncomment this to clear data after it is backed up, if i show it to dashboard probably user will like to press it */}
       <div className="mt-12">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Admin Actions</h3>
         <div className="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-4">

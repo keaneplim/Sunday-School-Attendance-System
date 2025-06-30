@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
-import { Church, Menu, X } from 'lucide-react';
+import { Menu, X, LogIn, LogOut } from 'lucide-react';
 
-interface HeaderProps {
-  currentView: string;
-  onViewChange: (view: string) => void;
-}
+  interface HeaderProps {
+    currentView: string;
+    onViewChange: (view: string) => void;
+    isAdmin: boolean;
+    onLogin: () => void;
+    onLogout: () => void;
+  }
 
-export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'checkin', label: 'Check-in' },
-    { id: 'students', label: 'Students' },
-    { id: 'reports', label: 'Reports' },
-  ];
+  export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, isAdmin, onLogin, onLogout }) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+    // Define which nav items are visible to whom
+    const allNavItems = [
+      { id: 'dashboard', label: 'Dashboard', adminOnly: true },
+      { id: 'checkin', label: 'Check-in', adminOnly: false },
+      { id: 'students', label: 'Students', adminOnly: false },
+      { id: 'reports', label: 'Reports', adminOnly: true },
+    ];
+  
+    const navItems = allNavItems.filter(item => !item.adminOnly || isAdmin);
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
@@ -50,6 +56,18 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => 
                 {item.label}
               </button>
             ))}
+
+            {isAdmin ? (
+              <button onClick={onLogout} className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
+              </button>
+            ) : (
+              <button onClick={onLogin} className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">
+                <LogIn className="h-4 w-4" />
+                <span>Admin Login</span>
+              </button>
+            )}
           </nav>
 
           {/* Hamburger Menu Button */}
@@ -77,19 +95,27 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => 
                 key={item.id}
                 onClick={() => {
                   onViewChange(item.id);
-                  setIsMenuOpen(false); // Close menu on selection
+                  setIsMenuOpen(false);
                 }}
-                className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${
-                  currentView === item.id
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                }`}
+                className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 font-sans ${currentView === item.id ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'}`}
               >
                 {item.label}
               </button>
             ))}
+            <div className="border-t border-gray-200 my-2"></div>
+            
+            {/* THIS IS THE MISSING SECTION FOR MOBILE VIEW */}
+            {isAdmin ? (
+              <button onClick={() => { onLogout(); setIsMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100">
+                Logout
+              </button>
+            ) : (
+              <button onClick={() => { onLogin(); setIsMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100">
+                Admin Login
+              </button>
+            )}
           </div>
-        </nav>
+      </nav>
       )}
     </header>
   );
