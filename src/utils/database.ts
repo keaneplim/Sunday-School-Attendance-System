@@ -126,8 +126,6 @@ export function printNameTag(student: Student) {
   const age = calculateAge(student.dateOfBirth);
   const category = getCategory(age);
 
-  
-
   const content = `
     <html>
       <head>
