@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Dashboard } from './components/Dashboard';
 import { CheckIn } from './components/CheckIn';
 import { Students } from './components/Students';
 import { Reports } from './components/Reports';
 import { Login } from './components/Login';
-import { login as apiLogin } from './utils/database';
+import { AdminLoginModal } from './components/AdminLoginModal';
+// Import both login functions
+import { login as apiLogin, adminLogin as apiAdminLogin } from './utils/database';
 
 function App() {
   const [currentView, setCurrentView] = useState('checkin');
@@ -13,20 +15,16 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminSecret, setAdminSecret] = useState<string | null>(null);
   const [loginError, setLoginError] = useState('');
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
 
-const handleLogin = async (password: string) => {
+  // Initial login handler
+  const handleLogin = async (password: string) => {
     const result = await apiLogin(password);
     if (result.success) {
       setIsAuthenticated(true);
+      // This will now always be false on initial login
       setIsAdmin(result.isAdmin);
-      // Only set the secret if the user is an admin
-      if (result.isAdmin && result.secret) {
-        setAdminSecret(result.secret);
-      } else {
-        // For teachers, we can set a non-admin secret token if the backend provides one
-        // Or ensure it's null if they are not admin
-        setAdminSecret(result.secret || null);
-      }
+      setAdminSecret(result.secret || null);
       setLoginError('');
       setCurrentView('checkin');
     } else {
@@ -34,10 +32,30 @@ const handleLogin = async (password: string) => {
     }
   };
 
+  // Admin privilege escalation handler
+  const handleAdminLogin = async (password: string) => {
+    if (!adminSecret) {
+        alert("Authentication error. Please log out and try again.");
+        return;
+    }
+    // Use the new admin login function
+    const result = await apiAdminLogin(password, adminSecret);
+    if (result.success && result.isAdmin) {
+      setIsAdmin(true);
+      // The secret might be the same, but we update it just in case
+      setAdminSecret(result.secret || null);
+      setShowAdminLogin(false);
+      setCurrentView('dashboard');
+    } else {
+      alert("Incorrect admin password.");
+    }
+  };
+
   const handleLogout = () => {
     setIsAuthenticated(false);
     setIsAdmin(false);
     setAdminSecret(null);
+    setCurrentView('checkin');
   };
   
   const handleViewChange = (view: string) => {
@@ -55,7 +73,6 @@ const handleLogin = async (password: string) => {
       case 'checkin':
         return <CheckIn />;
       case 'students':
-        // Both teachers and admins get a secret now to add students
         return <Students adminSecret={adminSecret} isAdmin={isAdmin} />;
       case 'reports':
         return isAdmin ? <Reports /> : <CheckIn />;
@@ -74,9 +91,17 @@ const handleLogin = async (password: string) => {
         currentView={currentView}
         onViewChange={handleViewChange}
         isAdmin={isAdmin}
-        onLogin={() => {}} // Not used from header anymore
+        onAdminLoginClick={() => setShowAdminLogin(true)}
         onLogout={handleLogout}
       />
+
+      {showAdminLogin && (
+        <AdminLoginModal
+          onLogin={handleAdminLogin}
+          onClose={() => setShowAdminLogin(false)}
+        />
+      )}
+
       <main className="min-h-[calc(100vh-4rem)]">
         {renderCurrentView()}
       </main>

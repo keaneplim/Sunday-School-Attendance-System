@@ -5,11 +5,11 @@ import { Menu, X, LogIn, LogOut } from 'lucide-react';
     currentView: string;
     onViewChange: (view: string) => void;
     isAdmin: boolean;
-    onLogin: () => void;
+    onAdminLoginClick: () => void; // <-- This line fixes the error
     onLogout: () => void;
   }
 
-  export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, isAdmin, onLogin, onLogout }) => {
+  export const Header: React.FC<HeaderProps> = ({ currentView, onViewChange, isAdmin, onAdminLoginClick, onLogout }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
   
     // Define which nav items are visible to whom
@@ -63,7 +63,7 @@ import { Menu, X, LogIn, LogOut } from 'lucide-react';
                 <span>Logout</span>
               </button>
             ) : (
-              <button onClick={onLogin} className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">
+              <button onClick={onAdminLoginClick} className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg">
                 <LogIn className="h-4 w-4" />
                 <span>Admin Login</span>
               </button>
@@ -110,7 +110,7 @@ import { Menu, X, LogIn, LogOut } from 'lucide-react';
                 Logout
               </button>
             ) : (
-              <button onClick={() => { onLogin(); setIsMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100">
+              <button onClick={() => { onAdminLoginClick(); setIsMenuOpen(false); }} className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:bg-gray-100">
                 Admin Login
               </button>
             )}

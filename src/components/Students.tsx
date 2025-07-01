@@ -373,7 +373,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
               </div>
 
               {/* Action buttons are only shown if an admin is logged in */}
-              {adminSecret && (
+              {isAdmin && (
                 <div className="border-t border-gray-200 mt-4 pt-4 flex items-center justify-end space-x-2">
                   <button
                     onClick={() => handleEdit(student)}

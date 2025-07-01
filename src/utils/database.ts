@@ -3,9 +3,9 @@ import { differenceInYears, format } from 'date-fns';
 
 const API_URL = 'http://localhost:4000/api';
 
-// This login function needs to handle the new response from the server
+// This function is for the initial login (Step 1)
 export async function login(password: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
-  const response = await fetch(`${API_URL}/login`, {
+  const response = await fetch(`${API_URL}/login`, { // Calls the main login route
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ password }),
@@ -15,6 +15,23 @@ export async function login(password: string): Promise<{ success: boolean; isAdm
   }
   return { success: false, isAdmin: false };
 }
+
+// This new function is for the admin-only login (Step 2)
+export async function adminLogin(password: string, authToken: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
+  const response = await fetch(`${API_URL}/admin-login`, { // Calls the new admin-only route
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'auth-secret': authToken, // Must provide the initial auth token to prove we're already logged in
+    },
+    body: JSON.stringify({ password }),
+  });
+  if (response.ok) {
+    return await response.json();
+  }
+  return { success: false, isAdmin: false };
+}
+
 
 export async function verifyClearDataPassword(password: string, adminSecret: string): Promise<boolean> {
     const response = await fetch(`${API_URL}/verify-clear-data-password`, {
@@ -34,14 +51,13 @@ export async function getStudents(): Promise<Student[]> {
   return result.data || [];
 }
 
-// THIS FUNCTION IS NOW CORRECTED
 export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>, authToken: string): Promise<Student> {
   const newStudent: Student = { ...student, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
   await fetch(`${API_URL}/students`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'auth-secret': authToken, // Send the token to prove we're logged in
+      'auth-secret': authToken,
     },
     body: JSON.stringify(newStudent),
   });
@@ -70,17 +86,14 @@ export async function deleteStudent(id: string, adminSecret: string): Promise<vo
     });
 }
 
-// Admin action - requires secret
 export async function clearAllData(adminSecret: string): Promise<void> {
   await fetch(`${API_URL}/clear-all-data`, {
     method: 'DELETE',
     headers: {
-      'admin-secret': adminSecret, // <-- Add secret to header
+      'admin-secret': adminSecret,
     }
   });
 }
-
-// --- Attendance Functions ---
 
 export async function getAttendanceRecords(): Promise<AttendanceRecord[]> {
   const response = await fetch(`${API_URL}/attendance`);

@@ -1,13 +1,12 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
-const cors =require('cors');
+const cors = require('cors');
 
 const app = express();
 const port = 4000;
 
-// --- All Passwords and Secrets are now on the server ---
-const TEACHER_PASSWORD = "teacher123"; // You can change this
-const ADMIN_PASSWORD = "rpcckidsmedan"; // You can change this
+const TEACHER_PASSWORD = "teacher123";
+const ADMIN_PASSWORD = "rpcckidsmedan";
 const ADMIN_SECRET_HEADER = "rpcc-admin-secret";
 const CLEAR_DATA_PASSWORD = "IamSUREthatIwantTOclearTHEdata";
 
@@ -27,10 +26,8 @@ db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS attendance_records (id TEXT PRIMARY KEY, studentId TEXT NOT NULL, sessionTime TEXT NOT NULL, checkinTimestamp TEXT NOT NULL, FOREIGN KEY (studentId) REFERENCES students (id))`);
 });
 
-// --- Security Middleware: The "Bouncer" ---
 const checkAuth = (req, res, next) => {
-    // This bouncer just checks if you have a keycard. Both roles get one.
-    if (req.headers['auth-secret'] === ADMIN_SECRET_HEADER) { // Using one secret for simplicity
+    if (req.headers['auth-secret'] === ADMIN_SECRET_HEADER) {
         next();
     } else {
         res.status(403).json({ "error": "Forbidden: Login required" });
@@ -38,7 +35,6 @@ const checkAuth = (req, res, next) => {
 };
 
 const checkAdmin = (req, res, next) => {
-    // This bouncer checks if you have the *admin* keycard.
     if (req.headers['admin-secret'] === ADMIN_SECRET_HEADER && req.headers.role === 'admin') {
         next();
     } else {
@@ -46,22 +42,31 @@ const checkAdmin = (req, res, next) => {
     }
 };
 
-
 // --- API ENDPOINTS ---
 
-// The "Smart" Login Endpoint
+// STEP 1: Initial Login (Teachers and Admins use this)
+// This endpoint now ONLY accepts the teacher password.
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
     if (password === TEACHER_PASSWORD) {
-        // Teacher logs in, gets a general keycard, but no admin rights
+        // Always returns isAdmin: false on initial login
         return res.json({ success: true, isAdmin: false, secret: ADMIN_SECRET_HEADER });
     }
-    if (password === ADMIN_PASSWORD) {
-        // Admin logs in, gets the same keycard, but an "admin" flag
-        return res.json({ success: true, isAdmin: true, secret: ADMIN_SECRET_HEADER });
-    }
+    // Any other password (including the admin password) will fail here.
     res.status(401).json({ success: false, error: "Invalid password" });
 });
+
+// STEP 2: Admin-only privilege escalation
+// This new endpoint is used by the Admin Login modal.
+app.post('/api/admin-login', checkAuth, (req, res) => {
+    const { password } = req.body;
+    if (password === ADMIN_PASSWORD) {
+        // If the password is correct, grant admin privileges.
+        return res.json({ success: true, isAdmin: true, secret: ADMIN_SECRET_HEADER });
+    }
+    res.status(401).json({ success: false, error: "Invalid admin password" });
+});
+
 
 app.post('/api/verify-clear-data-password', checkAdmin, (req, res) => {
     const { password } = req.body;
@@ -72,7 +77,6 @@ app.post('/api/verify-clear-data-password', checkAdmin, (req, res) => {
     }
 });
 
-// Get students is public for searching
 app.get('/api/students', (req, res) => {
     const sql = "SELECT * FROM students";
     db.all(sql, [], (err, rows) => {
@@ -81,7 +85,6 @@ app.get('/api/students', (req, res) => {
     });
 });
 
-// Add student is now PROTECTED
 app.post('/api/students', checkAuth, (req, res) => {
     const { id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt } = req.body;
     const sql = `INSERT INTO students (id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt) VALUES (?,?,?,?,?,?,?,?,?)`;
@@ -91,7 +94,6 @@ app.post('/api/students', checkAuth, (req, res) => {
     });
 });
 
-// Update and Delete are protected by ADMIN level access
 app.put('/api/students/:id', checkAdmin, (req, res) => {
     const { nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes } = req.body;
     const sql = `UPDATE students SET nickname = ?, firstName = ?, lastName = ?, dateOfBirth = ?, parentName = ?, parentPhone = ?, medicalNotes = ? WHERE id = ?`;
@@ -114,8 +116,6 @@ app.delete('/api/students/:id', checkAdmin, (req, res) => {
     });
 });
 
-// MODIFIED: This route is now only protected by the admin login, not the clear data password itself.
-// The password check happens in the new verification endpoint.
 app.delete('/api/clear-all-data', checkAdmin, (req, res) => {
     db.serialize(() => {
         db.run('BEGIN TRANSACTION');
@@ -139,6 +139,7 @@ app.get('/api/attendance', (req, res) => {
         res.json({ "message": "success", "data": rows });
     });
 });
+
 app.post('/api/attendance', (req, res) => {
     const { id, studentId, sessionTime, checkinTimestamp } = req.body;
     const sql = `INSERT INTO attendance_records (id, studentId, sessionTime, checkinTimestamp) VALUES (?,?,?,?)`;

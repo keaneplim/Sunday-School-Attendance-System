@@ -20,7 +20,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, loginError }) => {
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-xl shadow-md">
         <div className="text-center">
-            <img src="/logo_RPCC.png" alt="RPCC Logo" className="w-24 h-24 mx-auto mb-4" />
+            <img src="/logo_RPCC.png" alt="RPCC Logo" className="w-43 h-24 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-900">
                 Sunday School Attendance
             </h2>
