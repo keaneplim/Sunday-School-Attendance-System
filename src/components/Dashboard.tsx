@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
-import { getStudents, getAttendanceRecords, isSunday, getCurrentSession, clearAllData } from '../utils/database';
+import { getStudents, getAttendanceRecords, isSunday, getCurrentSession, clearAllData, verifyClearDataPassword } from '../utils/database';
 import { Student, AttendanceRecord } from '../types';
 import { format } from 'date-fns';
 
@@ -95,16 +95,31 @@ export const Dashboard: React.FC<DashboardProps> = ({ adminSecret }) => {
   // --- START: SECURITY IMPROVEMENT ---
   // Updated handleClearData function no longer prompts for a password
   const handleClearData = async () => {
-    const confirmation = window.confirm("FINAL CONFIRMATION: Are you sure you want to permanently delete all records? This action cannot be undone.");
-    if (confirmation) {
-        try {
-            await clearAllData(adminSecret); // Use the secret from props
-            alert("All application data has been cleared successfully.");
-            fetchData();
-        } catch (error) {
-            alert("An error occurred while clearing the data. You may not have permission.");
-            console.error(error);
+    // 1. Prompt for the special, high-security password
+    const password = prompt("DANGER: This action is irreversible. Please enter the master password to clear all data.");
+
+    if (!password) return; // User cancelled
+
+    // 2. Verify the password with the backend
+    const isPasswordCorrect = await verifyClearDataPassword(password, adminSecret);
+
+    if (isPasswordCorrect) {
+        // 3. If password was correct, ask for final confirmation
+        const confirmation = window.confirm("Password correct. FINAL CONFIRMATION: Are you sure you want to permanently delete all student and attendance records?");
+        if (confirmation) {
+            try {
+                // 4. Proceed with deletion
+                await clearAllData(adminSecret);
+                alert("All application data has been cleared successfully.");
+                fetchData(); // Refresh dashboard
+            } catch (error) {
+                alert("An error occurred while clearing the data.");
+                console.error(error);
+            }
         }
+    } else {
+        // 5. If password was incorrect
+        alert("Incorrect password. Data clearing has been cancelled.");
     }
   };
   

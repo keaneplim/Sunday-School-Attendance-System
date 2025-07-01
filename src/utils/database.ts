@@ -3,30 +3,30 @@ import { differenceInYears, format } from 'date-fns';
 
 const API_URL = 'http://localhost:4000/api';
 
-// --- START: SECURITY IMPROVEMENT ---
-
-// New function to handle login
-export async function login(password: string): Promise<{ success: boolean; secret?: string }> {
+// This login function needs to handle the new response from the server
+export async function login(password: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
   const response = await fetch(`${API_URL}/login`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ password }),
   });
-
   if (response.ok) {
-    const data = await response.json();
-    return { success: true, secret: data.secret };
-  } else {
-    return { success: false };
+    return await response.json();
   }
+  return { success: false, isAdmin: false };
 }
 
-// --- END: SECURITY IMPROVEMENT ---
-
-
-// --- Student Functions ---
+export async function verifyClearDataPassword(password: string, adminSecret: string): Promise<boolean> {
+    const response = await fetch(`${API_URL}/verify-clear-data-password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'admin-secret': adminSecret,
+        },
+        body: JSON.stringify({ password }),
+    });
+    return response.ok;
+}
 
 export async function getStudents(): Promise<Student[]> {
   const response = await fetch(`${API_URL}/students`);
@@ -34,46 +34,40 @@ export async function getStudents(): Promise<Student[]> {
   return result.data || [];
 }
 
-// THIS IS THE CORRECTED FUNCTION
-// Public action - does NOT require a secret
-export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>): Promise<Student> {
-  const newStudent: Student = {
-    ...student,
-    id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-  };
-
+// THIS FUNCTION IS NOW CORRECTED
+export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>, authToken: string): Promise<Student> {
+  const newStudent: Student = { ...student, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
   await fetch(`${API_URL}/students`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      // The 'admin-secret' header is no longer sent
+      'auth-secret': authToken, // Send the token to prove we're logged in
     },
     body: JSON.stringify(newStudent),
   });
   return newStudent;
 }
 
-// Admin action - requires secret
 export async function updateStudent(id: string, updates: Partial<Student>, adminSecret: string): Promise<void> {
   await fetch(`${API_URL}/students/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
-      'admin-secret': adminSecret, // <-- Add secret to header
+      'admin-secret': adminSecret,
+      'role': 'admin'
     },
     body: JSON.stringify(updates),
   });
 }
 
-// Admin action - requires secret
 export async function deleteStudent(id: string, adminSecret: string): Promise<void> {
-  await fetch(`${API_URL}/students/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'admin-secret': adminSecret, // <-- Add secret to header
-    }
-  });
+    await fetch(`${API_URL}/students/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'admin-secret': adminSecret,
+            'role': 'admin'
+        }
+    });
 }
 
 // Admin action - requires secret

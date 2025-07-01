@@ -127,9 +127,10 @@ const StudentForm = ({
 // Define props to accept the adminSecret, which can be null if not logged in
 interface StudentsProps {
   adminSecret: string | null;
+  isAdmin: boolean;
 }
 
-export const Students: React.FC<StudentsProps> = ({ adminSecret }) => {
+export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => {
 // --- END: SECURITY IMPROVEMENT ---
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -210,36 +211,43 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret }) => {
   // This is the fully corrected handleSubmit function for the "kiosk" workflow.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (Object.values(formErrors).some(error => error !== '')) {
       alert("Please fix the errors before submitting.");
       return;
     }
+    
+    // --- ADD THIS CHECK ---
+    // Both roles need a token (secret) to add or edit.
+    if (!adminSecret) {
+        alert("An authentication error occurred. Please log out and log back in.");
+        return;
+    }
+    // --- END OF ADDED CHECK ---
 
     try {
       if (editingStudent) {
-        // Editing STILL requires being logged in
-        if (!adminSecret) {
-          alert("You must be logged in as an admin to edit a student.");
+        if (!isAdmin) {
+          alert("You do not have permission to edit students.");
           return;
         }
+        // Now TypeScript knows adminSecret is a string here
         await updateStudent(editingStudent.id, formData, adminSecret);
       } else {
-        // Adding a student NO LONGER requires a login
-        await addStudent(formData);
+        // Now TypeScript knows adminSecret is a string here
+        await addStudent(formData, adminSecret);
       }
       await fetchStudents();
       resetForm();
     } catch (error) {
-      alert("An error occurred. If you are editing, you may not have permission.");
+      alert("An error occurred. You may not have permission for this action.");
       console.error(error);
     }
-  };
+};
 
   const handleEdit = (student: Student) => {
     // Editing requires being logged in
-    if (!adminSecret) {
-        alert("You must be logged in as an admin to edit students.");
+    if (!isAdmin) {
+        alert("You must be an admin to edit students.");
         return;
     }
     setEditingStudent(student);
@@ -257,13 +265,21 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret }) => {
   };
 
   const handleDelete = async (studentId: string, studentName: string) => {
-    // Deleting requires being logged in
-    if (!adminSecret) {
-        alert("You must be logged in as an admin to delete students.");
-        return;
+    if (!isAdmin) {
+      alert("You must be an admin to delete students.");
+      return;
     }
+
     if (window.confirm(`Are you sure you want to remove ${studentName}? This action cannot be undone.`)) {
+      // --- ADD THIS CHECK ---
+      if (!adminSecret) {
+        alert("Authentication error. Please log out and log back in.");
+        return;
+      }
+      // --- END OF ADDED CHECK ---
+      
       try {
+        // Now TypeScript knows adminSecret is a string here
         await deleteStudent(studentId, adminSecret);
         await fetchStudents();
       } catch (error) {
@@ -271,7 +287,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret }) => {
         console.error(error);
       }
     }
-  };
+};
   // --- END: SECURITY IMPROVEMENT ---
 
   if (isLoading) {
