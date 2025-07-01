@@ -5,10 +5,16 @@ const cors = require('cors');
 const app = express();
 const port = 4000;
 
-const TEACHER_PASSWORD = "RPCC-Kids-Medan888!";
-const ADMIN_PASSWORD = "RPCC-Kids-Admin888!";
-const ADMIN_SECRET_HEADER = "rpcc-admin-secret";
-const CLEAR_DATA_PASSWORD = "IamSUREthatIwantTOclearTHEdata!@#$8888";
+// Passwords and Secrets from Environment Variables
+const TEACHER_PASSWORD = process.env.TEACHER_PASSWORD;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_SECRET_HEADER = process.env.ADMIN_SECRET_HEADER;
+const CLEAR_DATA_PASSWORD = process.env.CLEAR_DATA_PASSWORD;
+
+// Connect to Supabase (PostgreSQL)
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
 
 app.use(cors());
 app.use(express.json());
@@ -26,6 +32,7 @@ db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS attendance_records (id TEXT PRIMARY KEY, studentId TEXT NOT NULL, sessionTime TEXT NOT NULL, checkinTimestamp TEXT NOT NULL, FOREIGN KEY (studentId) REFERENCES students (id))`);
 });
 
+// Security Middleware
 const checkAuth = (req, res, next) => {
     if (req.headers['auth-secret'] === ADMIN_SECRET_HEADER) {
         next();
@@ -49,19 +56,14 @@ const checkAdmin = (req, res, next) => {
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
     if (password === TEACHER_PASSWORD) {
-        // Always returns isAdmin: false on initial login
         return res.json({ success: true, isAdmin: false, secret: ADMIN_SECRET_HEADER });
     }
-    // Any other password (including the admin password) will fail here.
     res.status(401).json({ success: false, error: "Invalid password" });
 });
 
-// STEP 2: Admin-only privilege escalation
-// This new endpoint is used by the Admin Login modal.
 app.post('/api/admin-login', checkAuth, (req, res) => {
     const { password } = req.body;
     if (password === ADMIN_PASSWORD) {
-        // If the password is correct, grant admin privileges.
         return res.json({ success: true, isAdmin: true, secret: ADMIN_SECRET_HEADER });
     }
     res.status(401).json({ success: false, error: "Invalid admin password" });
@@ -77,12 +79,13 @@ app.post('/api/verify-clear-data-password', checkAdmin, (req, res) => {
     }
 });
 
-app.get('/api/students', (req, res) => {
-    const sql = "SELECT * FROM students";
-    db.all(sql, [], (err, rows) => {
-        if (err) res.status(400).json({ "error": err.message });
-        else res.json({ "message": "success", "data": rows });
-    });
+app.get('/api/students', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM students');
+        res.json({ "message": "success", "data": result.rows });
+    } catch (err) {
+        res.status(400).json({ "error": err.message });
+    }
 });
 
 app.post('/api/students', checkAuth, (req, res) => {
