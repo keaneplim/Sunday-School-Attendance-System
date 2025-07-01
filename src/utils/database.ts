@@ -1,7 +1,30 @@
 import { Student, AttendanceRecord } from '../types';
 import { differenceInYears, format } from 'date-fns';
 
-const API_URL = 'http://localhost:4000/api'; // The address of our backend
+const API_URL = 'http://localhost:4000/api';
+
+// --- START: SECURITY IMPROVEMENT ---
+
+// New function to handle login
+export async function login(password: string): Promise<{ success: boolean; secret?: string }> {
+  const response = await fetch(`${API_URL}/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ password }),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return { success: true, secret: data.secret };
+  } else {
+    return { success: false };
+  }
+}
+
+// --- END: SECURITY IMPROVEMENT ---
+
 
 // --- Student Functions ---
 
@@ -11,6 +34,8 @@ export async function getStudents(): Promise<Student[]> {
   return result.data || [];
 }
 
+// THIS IS THE CORRECTED FUNCTION
+// Public action - does NOT require a secret
 export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>): Promise<Student> {
   const newStudent: Student = {
     ...student,
@@ -22,33 +47,42 @@ export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>): Pr
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      // The 'admin-secret' header is no longer sent
     },
     body: JSON.stringify(newStudent),
   });
   return newStudent;
 }
 
-export async function updateStudent(id: string, updates: Partial<Student>): Promise<void> {
+// Admin action - requires secret
+export async function updateStudent(id: string, updates: Partial<Student>, adminSecret: string): Promise<void> {
   await fetch(`${API_URL}/students/${id}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'admin-secret': adminSecret, // <-- Add secret to header
     },
     body: JSON.stringify(updates),
   });
 }
 
-// NEW: Function to delete a student
-export async function deleteStudent(id: string): Promise<void> {
+// Admin action - requires secret
+export async function deleteStudent(id: string, adminSecret: string): Promise<void> {
   await fetch(`${API_URL}/students/${id}`, {
     method: 'DELETE',
+    headers: {
+      'admin-secret': adminSecret, // <-- Add secret to header
+    }
   });
 }
 
-// Function to clear all data
-export async function clearAllData(): Promise<void> {
+// Admin action - requires secret
+export async function clearAllData(adminSecret: string): Promise<void> {
   await fetch(`${API_URL}/clear-all-data`, {
     method: 'DELETE',
+    headers: {
+      'admin-secret': adminSecret, // <-- Add secret to header
+    }
   });
 }
 
@@ -93,19 +127,14 @@ export function getCategory(age: number): string {
 }
 
 export function isSunday(): boolean {
-  // Return true to enable check-in on any day for testing purposes
-  return true; 
-  
-  // The original code is commented out below so you can easily switch back
-  // const today = new Date();
-  // return today.getDay() === 0; // Sunday is 0
+  return true;
 }
 
 export function getCurrentSession(): string {
   if (!isSunday()) {
     return 'not-sunday';
   }
-  
+
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
@@ -116,11 +145,6 @@ export function getCurrentSession(): string {
   if (time < 1500) return '14:00';
   return '16:00';
 }
-
-// This is the only function you need to replace in this file.
-// Find the old printNameTag function and replace it with this one.
-
-// Find the old printNameTag function and replace it with this new one.
 
 export function printNameTag(student: Student) {
   const age = calculateAge(student.dateOfBirth);
@@ -151,14 +175,14 @@ export function printNameTag(student: Student) {
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; 
+            justify-content: flex-start;
             align-items: center;
-            padding-top: -5px; 
+            padding-top: -5px;
           }
           .main-info {
             text-align: center;
           }
-            
+
           h3 {
             font-size: 26pt;
             font-weight: bold;
@@ -212,17 +236,17 @@ export function printNameTag(student: Student) {
               ${category}
             </div>
           </div>
-          
+
         </div>
       </body>
     </html>
   `;
 
   const printWindow = window.open('', '', 'height=200,width=400');
-  
+
   if (printWindow) {
     printWindow.document.write(content);
-    
+
     printWindow.document.close();
     printWindow.onload = function() {
       printWindow.focus();

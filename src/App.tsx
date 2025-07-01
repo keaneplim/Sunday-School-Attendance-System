@@ -4,32 +4,37 @@ import { Dashboard } from './components/Dashboard';
 import { CheckIn } from './components/CheckIn';
 import { Students } from './components/Students';
 import { Reports } from './components/Reports';
-
-
-const ADMIN_PASSWORD = "rpcckidsmedan"; // You can change this password
-export const ADMIN_PASSWORD_CLEAR_DATA = "IAMSURETHATIWANTTOCLEARTHEDATA";
+import { login } from './utils/database'; // Import the new login function
 
 function App() {
   const [currentView, setCurrentView] = useState('checkin');
-  const [isAdmin, setIsAdmin] = useState(false); // New state to track if admin is logged in
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  // --- START: SECURITY IMPROVEMENT ---
+  const [adminSecret, setAdminSecret] = useState<string | null>(null);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     const password = prompt("Please enter the admin password:");
-    if (password === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      setCurrentView('dashboard'); // Go to dashboard on successful login
-    } else if (password) { // If they entered a password but it was wrong
-      alert("Incorrect password.");
+    if (password) {
+      const result = await login(password);
+      if (result.success && result.secret) {
+        setIsAdmin(true);
+        setAdminSecret(result.secret);
+        setCurrentView('dashboard');
+      } else {
+        alert("Incorrect password.");
+      }
     }
   };
 
   const handleLogout = () => {
     setIsAdmin(false);
-    setCurrentView('checkin'); // Go back to checkin view on logout
+    setAdminSecret(null); // Clear the secret on logout
+    setCurrentView('checkin');
   };
-  
+  // --- END: SECURITY IMPROVEMENT ---
+
   const handleViewChange = (view: string) => {
-    // Prevent non-admins from accessing restricted pages
     if (!isAdmin && (view === 'dashboard' || view === 'reports')) {
       alert("You do not have permission to view this page.");
       return;
@@ -37,18 +42,17 @@ function App() {
     setCurrentView(view);
   };
 
-
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        // Only show dashboard if admin
-        return isAdmin ? <Dashboard /> : <CheckIn />;
+        // Pass the secret to the Dashboard
+        return isAdmin && adminSecret ? <Dashboard adminSecret={adminSecret} /> : <CheckIn />;
       case 'checkin':
         return <CheckIn />;
       case 'students':
-        return <Students />;
+        // Pass the secret to the Students component
+        return <Students adminSecret={adminSecret} />;
       case 'reports':
-        // Only show reports if admin
         return isAdmin ? <Reports /> : <CheckIn />;
       default:
         return <CheckIn />;

@@ -27,19 +27,18 @@ const StudentForm = ({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          {/* 1. Update the label */}
           <label className="block text-sm font-medium text-gray-700 mb-1">Nickname *</label>
           <input
               type="text"
               name="nickname"
-              required 
+              required
               value={formData.nickname}
               onChange={handleInputChange}
               className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${formErrors.nickname ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
           />
           {formErrors.nickname && <p className="mt-2 text-sm text-red-600">{formErrors.nickname}</p>}
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
           <input
@@ -92,14 +91,12 @@ const StudentForm = ({
           <label className="block text-sm font-medium text-gray-700 mb-1">Parent Phone Number *</label>
           <input
             type="tel"
-            name="parentPhone"  // The name should be "parentPhone"
+            name="parentPhone"
             required
-            value={formData.parentPhone} // The value should be formData.parentPhone
+            value={formData.parentPhone}
             onChange={handleInputChange}
-            // The className should check for formErrors.parentPhone
             className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${formErrors.parentPhone ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-blue-500'}`}
           />
-          {/* The error message should check for formErrors.parentPhone */}
           {formErrors.parentPhone && <p className="mt-2 text-sm text-red-600">{formErrors.parentPhone}</p>}
         </div>
       </div>
@@ -126,8 +123,14 @@ const StudentForm = ({
   </div>
 );
 
-// This is the main component, updated to work with the backend.
-export const Students: React.FC = () => {
+// --- START: SECURITY IMPROVEMENT ---
+// Define props to accept the adminSecret, which can be null if not logged in
+interface StudentsProps {
+  adminSecret: string | null;
+}
+
+export const Students: React.FC<StudentsProps> = ({ adminSecret }) => {
+// --- END: SECURITY IMPROVEMENT ---
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -143,15 +146,12 @@ export const Students: React.FC = () => {
     medicalNotes: '',
   });
 
-  // Fetch students from the backend when the component first loads
-
   const [formErrors, setFormErrors] = useState({
     nickname: '',
     firstName: '',
     lastName: '',
     parentPhone: ''
   });
-
 
   useEffect(() => {
     fetchStudents();
@@ -172,25 +172,24 @@ export const Students: React.FC = () => {
       )
     : students;
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { name, value } = e.target;
-      setFormData({ ...formData, [name]: value });
-  
-      let error = '';
-      if (name === 'nickname') {
-        if (value.trim() === '') error = 'This field is required.';
-        else if (value.length > 17) error = 'Nickname cannot be more than 17 characters.';
-      } else if (name === 'firstName' || name === 'lastName') {
-        if (value.trim() === '') error = 'This field is required.';
-      } else if (name === 'parentPhone') {
-        const phoneRegex = /^[0-9]*$/;
-        if (value.trim() !== '' && !phoneRegex.test(value)) {
-          error = "Please enter numbers only.";
-        }
+    let error = '';
+    if (name === 'nickname') {
+      if (value.trim() === '') error = 'This field is required.';
+      else if (value.length > 17) error = 'Nickname cannot be more than 17 characters.';
+    } else if (name === 'firstName' || name === 'lastName') {
+      if (value.trim() === '') error = 'This field is required.';
+    } else if (name === 'parentPhone') {
+      const phoneRegex = /^[0-9]*$/;
+      if (value.trim() !== '' && !phoneRegex.test(value)) {
+        error = "Please enter numbers only.";
       }
-      setFormErrors(prevErrors => ({ ...prevErrors, [name]: error }));
-    };
+    }
+    setFormErrors(prevErrors => ({ ...prevErrors, [name]: error }));
+  };
 
   const resetForm = () => {
     setFormData({
@@ -204,30 +203,45 @@ export const Students: React.FC = () => {
     });
     setShowAddForm(false);
     setEditingStudent(null);
-    setFormErrors({ nickname: '', firstName: '', lastName: '', parentPhone: '' }); 
-
+    setFormErrors({ nickname: '', firstName: '', lastName: '', parentPhone: '' });
   };
 
-  // This function is now async to work with the backend
+  // --- START: SECURITY IMPROVEMENT ---
+  // This is the fully corrected handleSubmit function for the "kiosk" workflow.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (Object.values(formErrors).some(error => error !== '')) {
       alert("Please fix the errors before submitting.");
       return;
-  }
-
-    if (editingStudent) {
-      await updateStudent(editingStudent.id, formData);
-    } else {
-      await addStudent(formData);
     }
 
-    await fetchStudents(); // Re-fetch students to show the changes
-    resetForm();
+    try {
+      if (editingStudent) {
+        // Editing STILL requires being logged in
+        if (!adminSecret) {
+          alert("You must be logged in as an admin to edit a student.");
+          return;
+        }
+        await updateStudent(editingStudent.id, formData, adminSecret);
+      } else {
+        // Adding a student NO LONGER requires a login
+        await addStudent(formData);
+      }
+      await fetchStudents();
+      resetForm();
+    } catch (error) {
+      alert("An error occurred. If you are editing, you may not have permission.");
+      console.error(error);
+    }
   };
 
   const handleEdit = (student: Student) => {
+    // Editing requires being logged in
+    if (!adminSecret) {
+        alert("You must be logged in as an admin to edit students.");
+        return;
+    }
     setEditingStudent(student);
     setFormData({
       nickname: student.nickname ?? '',
@@ -242,13 +256,23 @@ export const Students: React.FC = () => {
     setShowAddForm(true);
   };
 
-  // New function to handle deleting a student
   const handleDelete = async (studentId: string, studentName: string) => {
+    // Deleting requires being logged in
+    if (!adminSecret) {
+        alert("You must be logged in as an admin to delete students.");
+        return;
+    }
     if (window.confirm(`Are you sure you want to remove ${studentName}? This action cannot be undone.`)) {
-      await deleteStudent(studentId);
-      await fetchStudents(); // Re-fetch students to update the list
+      try {
+        await deleteStudent(studentId, adminSecret);
+        await fetchStudents();
+      } catch (error) {
+        alert("An error occurred while deleting the student. You may not have permission.");
+        console.error(error);
+      }
     }
   };
+  // --- END: SECURITY IMPROVEMENT ---
 
   if (isLoading) {
     return <div className="p-6 text-center">Loading students...</div>;
@@ -259,14 +283,15 @@ export const Students: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Student Management</h2>
-          
         </div>
+        {/* The "Add Student" button is now ALWAYS visible */}
         <button onClick={() => setShowAddForm(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2">
           <Plus className="h-4 w-4" />
           <span>Add Student</span>
         </button>
       </div>
 
+      {/* The form is shown if showAddForm is true (no admin check needed here) */}
       {showAddForm && (
         <StudentForm
           formData={formData}
@@ -331,23 +356,25 @@ export const Students: React.FC = () => {
                 </div>
               </div>
 
-              {/* Action buttons are now at the bottom */}
-              <div className="border-t border-gray-200 mt-4 pt-4 flex items-center justify-end space-x-2">
-                <button
-                  onClick={() => handleEdit(student)}
-                  className="text-gray-500 hover:text-blue-600 p-2 rounded-full transition-colors"
-                  title="Edit Student"
-                >
-                  <Edit className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(student.id, `${student.firstName} ${student.lastName}`)}
-                  className="text-gray-500 hover:text-red-600 p-2 rounded-full transition-colors"
-                  title="Remove Student"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
+              {/* Action buttons are only shown if an admin is logged in */}
+              {adminSecret && (
+                <div className="border-t border-gray-200 mt-4 pt-4 flex items-center justify-end space-x-2">
+                  <button
+                    onClick={() => handleEdit(student)}
+                    className="text-gray-500 hover:text-blue-600 p-2 rounded-full transition-colors"
+                    title="Edit Student"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(student.id, `${student.firstName} ${student.lastName}`)}
+                    className="text-gray-500 hover:text-red-600 p-2 rounded-full transition-colors"
+                    title="Remove Student"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
