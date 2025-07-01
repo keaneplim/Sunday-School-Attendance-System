@@ -5,10 +5,10 @@ const cors = require('cors');
 const app = express();
 const port = 4000;
 
-const TEACHER_PASSWORD = "teacher123";
-const ADMIN_PASSWORD = "rpcckidsmedan";
+const TEACHER_PASSWORD = "RPCC-Kids-Medan888!";
+const ADMIN_PASSWORD = "RPCC-Kids-Admin888!";
 const ADMIN_SECRET_HEADER = "rpcc-admin-secret";
-const CLEAR_DATA_PASSWORD = "IamSUREthatIwantTOclearTHEdata";
+const CLEAR_DATA_PASSWORD = "IamSUREthatIwantTOclearTHEdata!@#$8888";
 
 app.use(cors());
 app.use(express.json());
