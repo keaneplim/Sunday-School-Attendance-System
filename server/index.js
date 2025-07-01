@@ -59,14 +59,23 @@ app.get('/api/students', (req, res) => {
 });
 
 // Add a new student
+// Add a new student
+// Add a new student
 app.post('/api/students', (req, res) => {
+    console.log("Received request to add new student with data:", req.body);
+
     const { id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt } = req.body;
-    const sql = `INSERT INTO students (id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt) VALUES (?,?,?,?,?,?,?,?)`;
+
+    // This is the corrected SQL query with the 9th placeholder
+    const sql = `INSERT INTO students (id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt) VALUES (?,?,?,?,?,?,?,?,?)`;
+
     db.run(sql, [id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt], function(err) {
         if (err) {
+            console.error("DATABASE ERROR:", err.message);
             res.status(400).json({ "error": err.message });
             return;
         }
+        console.log(`Successfully added student with ID: ${this.lastID}`);
         res.json({
             "message": "success",
             "data": req.body,

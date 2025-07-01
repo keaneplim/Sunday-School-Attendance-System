@@ -212,7 +212,7 @@ export const Students: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (Object.values(formErrors).some(error => error !== '') || !formData.nickname || !formData.firstName || !formData.lastName || !formData.parentPhone) {
+    if (Object.values(formErrors).some(error => error !== '')) {
       alert("Please fix the errors before submitting.");
       return;
   }
@@ -230,14 +230,15 @@ export const Students: React.FC = () => {
   const handleEdit = (student: Student) => {
     setEditingStudent(student);
     setFormData({
-      nickname: student.nickname || '', // Add the '|| ""' fallback
-      firstName: student.firstName,
-      lastName: student.lastName,
-      dateOfBirth: student.dateOfBirth,
-      parentName: student.parentName,
-      parentPhone: student.parentPhone,
-      medicalNotes: student.medicalNotes || '',
+      nickname: student.nickname ?? '',
+      firstName: student.firstName ?? '',
+      lastName: student.lastName ?? '',
+      dateOfBirth: student.dateOfBirth ?? '',
+      parentName: student.parentName ?? '',
+      parentPhone: student.parentPhone ?? '',
+      medicalNotes: student.medicalNotes ?? '',
     });
+    setFormErrors({ nickname: '', firstName: '', lastName: '', parentPhone: '' });
     setShowAddForm(true);
   };
 
