@@ -1,7 +1,7 @@
 import { Student, AttendanceRecord } from '../types';
 import { differenceInYears, format } from 'date-fns';
 
-const API_URL = 'http://localhost:4000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 // This function is for the initial login (Step 1)
 export async function login(password: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
