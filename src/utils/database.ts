@@ -189,46 +189,40 @@ export function printNameTag(student: Student) {
           .main-info {
             text-align: center;
           }
-
           h3 {
             font-size: 26pt;
             font-weight: bold;
             margin: 0;
             padding: 0;
-            /* text-decoration: underline */
           }
           .category {
-            /* Positioned at the top right */
             position: absolute;
             bottom: 35px;
             right: 5px;
             text-align: right;
-            font-size: 15pt; /* Smaller font size for parent info */
-            color: #4b5563; /* gray-600 */
+            font-size: 15pt;
+            color: #4b5563;
           }
           .parent-info {
-            /* Positioned at the bottom left */
             position: absolute;
             bottom: 30px;
             left: 5px;
             text-align: left;
-            font-size: 10pt; /* Smaller font size for parent info */
-            color: #4b5563; /* gray-600 */
+            font-size: 10pt;
+            color: #4b5563;
           }
           .parent-info span {
-            display: block; /* Makes name and number appear on separate lines */
+            display: block;
           }
-
           hr {
-            width: 100%; /* Make the line slightly shorter than the tag */
+            width: 100%;
             border: none;
             border-top: 2px solid black;
-            margin: 8px 0; /* Add some space above and below the line */
+            margin: 8px 0;
           }
-
         </style>
       </head>
-      <body onload="window.print()">
+      <body>
         <div class="tag">
           <div class="main-info">
             <h3>${student.nickname}</h3>
@@ -243,22 +237,30 @@ export function printNameTag(student: Student) {
               ${category}
             </div>
           </div>
-
         </div>
       </body>
     </html>
   `;
 
-  const printWindow = window.open('', '', 'height=200,width=400');
+  // This new method avoids pop-ups by using a hidden iframe.
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'absolute';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  document.body.appendChild(iframe);
 
-  if (printWindow) {
-    printWindow.document.write(content);
-
-    printWindow.document.close();
-    printWindow.onload = function() {
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    };
+  const doc = iframe.contentWindow?.document;
+  if (doc) {
+    doc.open();
+    doc.write(content);
+    doc.close();
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
   }
+  
+  // Clean up the iframe after a delay
+  setTimeout(() => {
+    document.body.removeChild(iframe);
+  }, 1000);
 }
