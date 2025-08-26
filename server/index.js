@@ -121,6 +121,10 @@ app.get('/api/attendance', async (req, res) => {
     }
 });
 
+app.get('/api/healthcheck', (req, res) => {
+    res.status(200).json({ status: 'ok', message: 'Server is awake' });
+});
+
 app.post('/api/attendance', async (req, res) => {
     const { id, studentId, sessionTime, checkinTimestamp } = req.body;
     const sql = `INSERT INTO attendance_records (id, "studentId", "sessionTime", "checkinTimestamp") VALUES ($1, $2, $3, $4)`;
