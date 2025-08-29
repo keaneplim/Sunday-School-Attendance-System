@@ -168,6 +168,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
         <title>Name Tag - ${student.nickname}</title>
         <style>
           * {
@@ -195,7 +196,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           .header {
             text-align: center;
             margin-bottom: 25px;
-            color: #333;
+            color: #000;
           }
           
           .info {
@@ -239,7 +240,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           .tag-left {
             flex: 0 0 auto;
             font-size: 12px;
-            color: #666;
+            color: #000;
             line-height: 1.4;
             margin-right: 15px;
           }
@@ -261,7 +262,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           .tag-right {
             flex: 0 0 auto;
             font-size: 16px;
-            color: #666;
+            color: #000;
             font-weight: bold;
             margin-left: 15px;
           }
@@ -353,7 +354,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
               margin: 0;
               padding: 0;
               background: white;
-              font-family: Arial, sans-serif;
+              font-family: Poppins, sans-serif;
             }
             
             .container {
@@ -701,7 +702,7 @@ function printNameTagMobile(student: Student, category: string) {
               margin: 0;
               padding: 0;
               background: white;
-              font-family: Arial, sans-serif;
+              font-family: Poppins, sans-serif;
             }
 
             .print-tag {
@@ -725,7 +726,7 @@ function printNameTagMobile(student: Student, category: string) {
               width: 25%;
               padding: 3mm;
               font-size: 7pt;
-              color: #333;
+              color: #000;
               vertical-align: top;
               line-height: 1.2;
             }
