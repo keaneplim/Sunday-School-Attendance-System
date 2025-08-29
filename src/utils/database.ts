@@ -153,6 +153,7 @@ export function getCurrentSession(): string {
 
 // --- Desktop printing method (iframe) ---
 // --- Desktop printing method (iframe) ---
+// --- Desktop printing method (iframe) ---
 function printNameTagDesktop(student: Student, category: string) {
   const iframe = document.createElement('iframe');
   iframe.style.position = 'absolute';
@@ -196,18 +197,20 @@ function printNameTagDesktop(student: Student, category: string) {
   iframe.contentDocument!.write(content);
   iframe.contentDocument!.close();
 
-  // --- FIX ---
-  // Wait for the iframe to load before printing
+  // THIS IS THE FIX: Wait for the iframe to fully load before printing
   iframe.onload = function() {
     iframe.contentWindow!.focus();
     iframe.contentWindow!.print();
     
     // Clean up the iframe after a short delay
     setTimeout(() => {
-      document.body.removeChild(iframe);
-    }, 1000);
+        if (iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+        }
+    }, 500);
   };
 }
+
 
 // --- IMPROVED PRINTING FUNCTIONS FOR ANDROID TABLETS ---
 
