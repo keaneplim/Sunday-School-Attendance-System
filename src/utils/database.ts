@@ -151,6 +151,55 @@ export function getCurrentSession(): string {
   return '16:00';
 }
 
+// --- Desktop printing method (iframe) ---
+function printNameTagDesktop(student: Student, category: string) {
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'absolute';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  document.body.appendChild(iframe);
+
+  const content = `
+    <html>
+      <head>
+        <title>Name Tag - ${student.nickname}</title>
+        <style>
+          body { font-family: Poppins, sans-serif; margin:0; padding:0; }
+          .tag { 
+            width: 90mm; height: 29mm;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 3mm 5mm; box-sizing: border-box; 
+          }
+          .left { font-size: 7pt; color:#000; line-height:1.2; }
+          .center { text-align:center; font-size: 24pt; font-weight:bold; }
+          .right { font-size: 8pt; font-weight:bold; text-align:right; }
+          @page { size: 90mm 29mm; margin:0; }
+        </style>
+      </head>
+      <body>
+        <div class="tag">
+          <div class="left">
+            <div>${student.parentName || 'Parent'}</div>
+            <div>${student.parentPhone || 'Phone'}</div>
+          </div>
+          <div class="center">${student.nickname}</div>
+          <div class="right">${category}</div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  iframe.contentDocument!.open();
+  iframe.contentDocument!.write(content);
+  iframe.contentDocument!.close();
+
+  iframe.contentWindow!.focus();
+  iframe.contentWindow!.print();
+
+  setTimeout(() => iframe.remove(), 1000);
+}
+
 // --- IMPROVED PRINTING FUNCTIONS FOR ANDROID TABLETS ---
 
 // Android-specific printing method using popup window
@@ -476,11 +525,13 @@ function printNameTagAndroidFallback(student: Student, category: string) {
 
 // Improved mobile/tablet printing method
 function printNameTagMobile(student: Student, category: string) {
-  const originalContent = document.body.innerHTML;
-  const originalTitle = document.title;
-  const scrollY = window.scrollY;
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+  if (!printWindow) {
+    alert('Please allow popups for printing to work.');
+    return;
+  }
 
-  const printContent = `
+  const content = `
     <!DOCTYPE html>
     <html>
       <head>
@@ -488,393 +539,41 @@ function printNameTagMobile(student: Student, category: string) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Name Tag - ${student.nickname}</title>
         <style>
-          * {
-            margin: 0;
-            padding: 0;
+          body { font-family: Poppins, sans-serif; margin:0; padding:0; }
+          .print-tag {
+            width: 90mm; height: 29mm;
+            display: grid; grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            padding: 2mm 4mm;
+            background: white;
             box-sizing: border-box;
           }
-
-          @media screen {
-            body {
-              font-family: Poppins, sans-serif;
-              background: #f5f5f5;
-              padding: 15px;
-              line-height: 1.4;
-            }
-            
-            .screen-only {
-              display: block;
-            }
-            
-            .print-only {
-              display: none;
-            }
-            
-            .controls {
-              text-align: center;
-              margin-bottom: 25px;
-              background: white;
-              padding: 20px;
-              border-radius: 10px;
-              box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            }
-            
-            .controls h2 {
-              color: #333;
-              margin-bottom: 15px;
-              font-size: 24px;
-            }
-            
-            .student-info {
-              background: #f8f9fa;
-              padding: 15px;
-              border-radius: 8px;
-              margin: 15px 0;
-              text-align: left;
-            }
-            
-            .student-info div {
-              margin: 8px 0;
-              font-size: 15px;
-            }
-            
-            .student-info strong {
-              color: #555;
-              display: inline-block;
-              width: 80px;
-            }
-            
-            .button {
-              display: inline-block;
-              padding: 15px 25px;
-              margin: 8px;
-              border: none;
-              border-radius: 8px;
-              font-size: 16px;
-              font-weight: bold;
-              text-decoration: none;
-              cursor: pointer;
-              transition: all 0.3s ease;
-              min-width: 140px;
-            }
-            
-            .print-btn {
-              background: #2196F3;
-              color: white;
-            }
-            
-            .print-btn:hover {
-              background: #1976D2;
-              transform: translateY(-2px);
-            }
-            
-            .back-btn {
-              background: #4CAF50;
-              color: white;
-            }
-            
-            .back-btn:hover {
-              background: #388E3C;
-              transform: translateY(-2px);
-            }
-            
-            
-            .preview-container {
-              background: white;
-              padding: 25px;
-              border-radius: 10px;
-              box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-              margin: 20px auto;
-              max-width: 650px;
-            }
-            
-            .preview-title {
-              text-align: center;
-              margin-bottom: 20px;
-              color: #333;
-              font-size: 20px;
-            }
-            
-            .preview-tag {
-              width: 100%;
-              max-width: 500px;
-              height: 160px;
-              margin: 0 auto 20px auto;
-              border: none;
-              background: white;
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              padding: 20px 30px;
-              font-family: Poppins, sans-serif;
-              box-sizing: border-box;
-            }
-            
-            .preview-left {
-              flex: 0 0 auto;
-              font-size: 13px;
-              color: #666;
-              line-height: 1.4;
-              margin-right: 20px;
-            }
-            
-            .preview-center {
-              flex: 1;
-              text-align: center;
-              padding: 0 20px;
-            }
-            
-            .preview-name {
-              font-size: 26px;
-              font-weight: bold;
-              color: #000;
-              word-wrap: break-word;
-              line-height: 1.2;
-            }
-            
-            .preview-right {
-              flex: 0 0 auto;
-              font-size: 18px;
-              color: #666;
-              font-weight: bold;
-              margin-left: 20px;
-            }
-
-            .help-text {
-              background: #fff3cd;
-              border-left: 4px solid #ffc107;
-              padding: 15px;
-              border-radius: 8px;
-              margin-top: 20px;
-              font-size: 14px;
-              color: #856404;
-            }
-
-            /* Mobile responsive adjustments */
-            @media screen and (max-width: 768px) {
-              body {
-                padding: 10px;
-              }
-              
-              .controls {
-                padding: 15px;
-              }
-              
-              .button {
-                padding: 12px 20px;
-                font-size: 15px;
-                margin: 5px;
-                min-width: 120px;
-              }
-              
-              .preview-container {
-                text-align: center;
-                margin: 20px 0;
-              }
-              
-              .preview-title {
-                font-size: 14px;
-                margin-bottom: 10px;
-                color: #333;
-              }
-              
-              .preview-tag {
-                display: grid;
-                grid-template-columns: 1fr 2fr 1fr; /* Left, Center, Right */
-                align-items: center;
-                border: none; /* No black border */
-                padding: 10px;
-                width: 100%;
-                max-width: 600px; /* Adjust to actual paper width */
-                margin: auto;
-              }
-              
-              .preview-left,
-              .preview-right {
-                font-size: 14px;
-                text-align: left;
-              }
-              
-              .preview-right {
-                text-align: right;
-              }
-              
-              .preview-center {
-                text-align: center;
-              }
-              
-              .preview-name {
-                font-size: 28px;  /* Bigger nickname */
-                font-weight: bold;
-              }
-
-            }
-          }
-
-          @media print {
-            .screen-only {
-              display: none !important;
-            }
-            
-            .print-only {
-              display: block !important;
-              position: absolute;      /* Crucial for mobile rendering */
-              top: 0;                  /* Crucial for mobile rendering */
-              left: 0;                 /* Crucial for mobile rendering */
-            }
-
-            html, body {
-              width: 100%;
-              height: 100%;
-              margin: 0;
-              padding: 0;
-              background: white;
-              font-family: Poppins, sans-serif;
-            }
-
-            .print-tag {
-              width: 90mm;
-              height: 29mm;
-              display: grid;
-              grid-template-columns: 1fr 2fr 1fr;
-              align-items: center;
-              padding: 2mm 4mm;
-              background: white;
-              box-sizing: border-box;
-            }
-            
-            .print-content {
-              display: table-row;
-              width: 100%;
-              height: 100%;
-            }
-            
-            .print-left {
-              display: table-cell;
-              width: 25%;
-              padding: 3mm;
-              font-size: 7pt;
-              color: #000;
-              vertical-align: top;
-              line-height: 1.2;
-            }
-            
-            .print-center {
-              text-align: center;
-            }
-            
-            .print-name {
-              font-size: 26pt;
-              font-weight: bold;
-              color: black;
-            }
-            
-            .print-right {
-              display: table-cell;
-              width: 25%;
-              text-align: right;
-              vertical-align: middle;
-              padding: 3mm;
-              font-size: 8pt;
-              font-weight: bold;
-              color: #333;
-            }
-
-            .print-line {
-              border-top: 1px solid #000;
-              margin: 1mm auto;
-              width: 100%;
-            }
-
-            .print-bottom {
-              display: flex;
-              justify-content: space-between;
-              font-size: 8pt;
-              font-weight: 400;
-            }
-
-            @page {
-              size: 90mm 29mm;
-              margin: 0;
-            }
-          }
+          .print-left { font-size: 7pt; line-height: 1.2; }
+          .print-center { text-align: center; font-size: 26pt; font-weight: bold; }
+          .print-right { font-size: 8pt; font-weight: bold; text-align: right; }
+          @page { size: 90mm 29mm; margin: 0; }
         </style>
       </head>
       <body>
-        <div class="screen-only">
-          <div class="controls">
-            <h2>📋 Name Tag Preview</h2>
-            
-            <div class="student-info">
-              <div><strong>Student:</strong> ${student.nickname}</div>
-              <div><strong>Category:</strong> ${category}</div>
-              <div><strong>Parent:</strong> ${student.parentName || 'Not specified'}</div>
-              <div><strong>Phone:</strong> ${student.parentPhone || 'Not specified'}</div>
-            </div>
-            
-            <div style="margin-top: 20px;">
-              <button class="button print-btn" onclick="window.print()">🖨️ Print Tag</button>
-              <button class="button back-btn" onclick="goBack()">← Back</button>
-            </div>
-            
-            <div class="help-text">
-              <strong>💡 Printing Instructions:</strong><br>
-              • Set your printer to 90mm x 29mm label size<br>
-              • If printing fails, try the Download option<br>
-              • For Android tablets, download works better than direct printing
-            </div>
+        <div class="print-tag">
+          <div class="print-left">
+            <div>${student.parentName || 'Parent'}</div>
+            <div>${student.parentPhone || 'Phone'}</div>
           </div>
-
-          <div class="preview-container">
-            <h3 class="preview-title">Preview (Actual Size Will Be Smaller)</h3>
-            
-            <div class="preview-tag">
-              <!-- Left side: Parent info -->
-              <div class="preview-left">
-                <div>${student.parentName || 'Parent'}</div>
-                <div>${student.parentPhone || 'Phone'}</div>
-              </div>
-          
-              <!-- Center: Student nickname -->
-              <div class="preview-center">
-                <div class="preview-name">${student.nickname}</div>
-              </div>
-          
-              <!-- Right side: Category -->
-              <div class="preview-right">
-                ${category}
-              </div>
-            </div>
-          </div>
-
-
+          <div class="print-center">${student.nickname}</div>
+          <div class="print-right">${category}</div>
+        </div>
         <script>
-          function goBack() {
-            window.history.back();
-          }
-          
-          window.addEventListener('popstate', function() {
-            goBack();
-          });
+          window.onload = () => { window.print(); window.onafterprint = () => window.close(); };
         </script>
       </body>
     </html>
   `;
 
-  // Replace page content
-  document.body.innerHTML = printContent;
-  document.title = `Name Tag - ${student.nickname}`;
-
-  // Handle back navigation
-  const handlePopstate = () => {
-    document.body.innerHTML = originalContent;
-    document.title = originalTitle;
-    window.scrollTo(0, scrollY);
-    window.removeEventListener('popstate', handlePopstate);
-  };
-  
-  window.addEventListener('popstate', handlePopstate);
+  printWindow.document.write(content);
+  printWindow.document.close();
 }
+
 
 // Main print function with improved device detection
 export function printNameTag(student: Student) {
@@ -916,31 +615,6 @@ export function isPrintingSupported(): boolean {
   return 'print' in window && typeof window.print === 'function';
 }
 
-// Function to show print options (useful for UI)
-export function showPrintOptions(student: Student) {
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
-  
-  const userAgent = navigator.userAgent.toLowerCase();
-  const isAndroid = /android/i.test(userAgent);
-  const isIOS = /iphone|ipad|ipod/i.test(userAgent);
-  
-  const options = {
-    canPrint: isPrintingSupported(),
-    canDownload: true, // Canvas is widely supported
-    recommendDownload: isAndroid, // Recommend download for Android
-    deviceType: isAndroid ? 'android' : isIOS ? 'ios' : 'desktop',
-    studentInfo: {
-      name: student.nickname,
-      category: category,
-      parentName: student.parentName,
-      parentPhone: student.parentPhone
-    }
-  };
-  
-  return options;
-}
-
 // Enhanced function for better Android tablet compatibility
 export function printNameTagWithOptions(student: Student, options: { 
   forceMethod?: 'popup' | 'mobile' | 'desktop' | 'download';
@@ -959,9 +633,6 @@ export function printNameTagWithOptions(student: Student, options: {
     case 'desktop':
       printNameTagDesktop(student, category);
       break;
-    case 'download':
-      downloadNameTag(student);
-      break;
     default:
       printNameTag(student); // Use auto-detection
   }
@@ -978,7 +649,6 @@ export function debugPrintMethods(student: Student) {
   console.log('User Agent:', navigator.userAgent);
   console.log('Screen size:', window.screen.width, 'x', window.screen.height);
   console.log('Print supported:', isPrintingSupported());
-  console.log('Options:', showPrintOptions(student));
 }
 
 // Function to handle print errors gracefully
@@ -996,8 +666,6 @@ export function handlePrintError(student: Student, error: Error) {
     Student: ${student.nickname}
     Error: ${error.message}
   `;
-  
-  if (confirm(fallbackMessage + '\n\nWould you like to download the image instead?')) {
-    downloadNameTag(student);
+
   }
 }
