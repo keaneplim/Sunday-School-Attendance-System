@@ -708,11 +708,12 @@ function printNameTagMobile(student: Student, category: string) {
             .print-tag {
               width: 90mm;
               height: 29mm;
-              border: 2px solid black;
               background: white;
-              display: table;
-              table-layout: fixed;
-              font-family: Poppins, sans-serif;
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+              padding: 2mm 4mm;
+              box-sizing: border-box;
             }
             
             .print-content {
@@ -732,15 +733,11 @@ function printNameTagMobile(student: Student, category: string) {
             }
             
             .print-center {
-              display: table-cell;
-              width: 50%;
               text-align: center;
-              vertical-align: middle;
-              padding: 2mm;
             }
             
             .print-name {
-              font-size: 12pt;
+              font-size: 26pt;
               font-weight: bold;
               color: black;
             }
@@ -754,6 +751,18 @@ function printNameTagMobile(student: Student, category: string) {
               font-size: 8pt;
               font-weight: bold;
               color: #333;
+            }
+
+            .print-line {
+              border-top: 1px solid #000;
+              margin: 2mm 0;
+            }
+
+            .print-bottom {
+              display: flex;
+              justify-content: space-between;
+              font-size: 8pt;
+              font-weight: 400;
             }
 
             @page {
