@@ -281,6 +281,9 @@ function printNameTagMobile(student: Student, category: string) {
 
             .print-only {
               display: block !important;
+              position: absolute;     
+              top: 0;              
+              left: 0;              
             }
 
             /* Set exact page size to match your Brother QL-820NWB sticker */
