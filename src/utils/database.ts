@@ -362,7 +362,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
               margin: 0;
               padding: 0;
               background: white;
-              font-family: Arial, sans-serif;
+              font-family: 'Poppins', sans-serif;
             }
             
             .container {
@@ -384,7 +384,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
               height: 29mm;
               max-width: 90mm;
               margin: 0;
-              border: 2px solid #000;
               padding: 3mm 5mm;
               page-break-inside: avoid;
               position: absolute;
@@ -395,6 +394,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             .tag-left {
               font-size: 7pt;
               margin-right: 3mm;
+              color: black !important;
             }
             
             .tag-center {
@@ -403,11 +403,13 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             
             .tag-name {
               font-size: 12pt;
+              color: black !important;
             }
             
             .tag-right {
               font-size: 8pt;
               margin-left: 3mm;
+              color: black !important;
             }
 
             @page {
@@ -457,8 +459,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           
           <div class="buttons">
             <button class="btn btn-print" onclick="window.print()">🖨️ Print Tag</button>
-            <button class="btn btn-download" onclick="downloadAsImage()">📱 Download Image</button>
-            <button class="btn btn-close" onclick="window.close()">✖️ Close</button>
           </div>
           
           <div class="help-text">
@@ -470,73 +470,11 @@ function printNameTagAndroidFallback(student: Student, category: string) {
         </div>
 
         <script>
-          function downloadAsImage() {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // Set canvas size (90mm x 29mm at 200 DPI for good quality)
-            canvas.width = 709;  // 90mm at 200 DPI
-            canvas.height = 229; // 29mm at 200 DPI
-            
-            // White background
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Black border
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 4;
-            ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
-            
-            // Left section - Parent info
-            ctx.fillStyle = '#333';
-            ctx.font = '16px Arial';
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            ctx.fillText('${student.parentName || 'Parent'}', 25, 45);
-            ctx.fillText('${student.parentPhone || 'Phone'}', 25, 75);
-            
-            // Center section - Student name
-            ctx.fillStyle = 'black';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            // Auto-adjust font size for long names
-            let fontSize = 32;
-            ctx.font = 'bold ' + fontSize + 'px Arial';
-            const maxWidth = 280;
-            while (ctx.measureText('${student.nickname}').width > maxWidth && fontSize > 16) {
-              fontSize -= 1;
-              ctx.font = 'bold ' + fontSize + 'px Arial';
-            }
-            
-            ctx.fillText('${student.nickname}', canvas.width / 2, canvas.height / 2);
-            
-            // Right section - Category
-            ctx.fillStyle = '#333';
-            ctx.font = 'bold 20px Arial';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('${category}', canvas.width - 25, canvas.height / 2);
-            
-            // Download the image
-            canvas.toBlob(function(blob) {
-              if (blob) {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = '${student.nickname.replace(/[^a-zA-Z0-9]/g, '_')}_nametag.png';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                // Show success message
-                alert('✅ Name tag image downloaded! You can find it in your Downloads folder and print it from there.');
-              } else {
-                alert('❌ Failed to generate image. Please try again.');
-              }
-            }, 'image/png', 1.0);
-          }
+          const printButton = document.querySelector('.btn-print');
+          printButton.onclick = function() {
+            window.print();
+            setTimeout(function() { window.close(); }, 3000); // Closes after 3 seconds
+          };
 
           // Auto-focus window for better user experience
           window.focus();
