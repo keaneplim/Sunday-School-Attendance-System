@@ -376,7 +376,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
               height: 29mm;
               max-width: 90mm;
               margin: 0;
-              border: 2px solid #000;
               padding: 3mm 5mm;
               page-break-inside: avoid;
               position: absolute;
@@ -601,7 +600,7 @@ function printNameTagMobile(student: Student, category: string) {
               max-width: 500px;
               height: 160px;
               margin: 0 auto 20px auto;
-              border: 3px solid #333;
+              border: none;
               background: white;
               display: flex;
               align-items: center;
@@ -668,19 +667,47 @@ function printNameTagMobile(student: Student, category: string) {
                 min-width: 120px;
               }
               
-              .preview-tag {
-                height: 130px;
-                padding: 15px 20px;
+              .preview-container {
+                text-align: center;
+                margin: 20px 0;
               }
               
-              .preview-name {
-                font-size: 22px;
+              .preview-title {
+                font-size: 14px;
+                margin-bottom: 10px;
+                color: #333;
+              }
+              
+              .preview-tag {
+                display: grid;
+                grid-template-columns: 1fr 2fr 1fr; /* Left, Center, Right */
+                align-items: center;
+                border: none; /* No black border */
+                padding: 10px;
+                width: 100%;
+                max-width: 600px; /* Adjust to actual paper width */
+                margin: auto;
               }
               
               .preview-left,
               .preview-right {
-                font-size: 12px;
+                font-size: 14px;
+                text-align: left;
               }
+              
+              .preview-right {
+                text-align: right;
+              }
+              
+              .preview-center {
+                text-align: center;
+              }
+              
+              .preview-name {
+                font-size: 28px;  /* Bigger nickname */
+                font-weight: bold;
+              }
+
             }
           }
 
@@ -708,11 +735,11 @@ function printNameTagMobile(student: Student, category: string) {
             .print-tag {
               width: 90mm;
               height: 29mm;
-              background: white;
-              display: flex;
-              flex-direction: column;
-              justify-content: space-between;
+              display: grid;
+              grid-template-columns: 1fr 2fr 1fr;
+              align-items: center;
               padding: 2mm 4mm;
+              background: white;
               box-sizing: border-box;
             }
             
@@ -755,7 +782,8 @@ function printNameTagMobile(student: Student, category: string) {
 
             .print-line {
               border-top: 1px solid #000;
-              margin: 2mm 0;
+              margin: 1mm auto;
+              width: 100%;
             }
 
             .print-bottom {
@@ -799,37 +827,26 @@ function printNameTagMobile(student: Student, category: string) {
 
           <div class="preview-container">
             <h3 class="preview-title">Preview (Actual Size Will Be Smaller)</h3>
+            
             <div class="preview-tag">
+              <!-- Left side: Parent info -->
               <div class="preview-left">
                 <div>${student.parentName || 'Parent'}</div>
                 <div>${student.parentPhone || 'Phone'}</div>
               </div>
+          
+              <!-- Center: Student nickname -->
               <div class="preview-center">
                 <div class="preview-name">${student.nickname}</div>
               </div>
+          
+              <!-- Right side: Category -->
               <div class="preview-right">
                 ${category}
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="print-only">
-          <div class="print-tag">
-            <div class="print-content">
-              <div class="print-left">
-                <div>${student.parentName || 'Parent'}</div>
-                <div>${student.parentPhone || 'Phone'}</div>
-              </div>
-              <div class="print-center">
-                <div class="print-name">${student.nickname}</div>
-              </div>
-              <div class="print-right">
-                ${category}
-              </div>
-            </div>
-          </div>
-        </div>
 
         <script>
           function goBack() {
