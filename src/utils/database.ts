@@ -151,38 +151,411 @@ export function getCurrentSession(): string {
   return '16:00';
 }
 
-// --- Tablet-Compatible Printing Functions ---
+// --- IMPROVED PRINTING FUNCTIONS FOR ANDROID TABLETS ---
 
-// Main print function that detects device and uses appropriate method
-export function printNameTag(student: Student) {
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
-
-  // Check if device is mobile/tablet
-  const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+// Android-specific printing method using popup window
+function printNameTagAndroidFallback(student: Student, category: string) {
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
   
-  // Also check for touch capability as additional indicator
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-  if (isMobileDevice || isTouchDevice) {
-    // Use direct window printing for mobile devices
-    printNameTagMobile(student, category);
-  } else {
-    // Use iframe method for desktop (your existing method can work here)
-    printNameTagDesktop(student, category);
+  if (!printWindow) {
+    alert('Please allow popups for printing to work. Alternatively, try the download option.');
+    return;
   }
+
+  const content = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Name Tag - ${student.nickname}</title>
+        <style>
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+
+          body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            line-height: 1.4;
+          }
+          
+          .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+          }
+          
+          .info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+          }
+          
+          .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+          }
+          
+          .info-label {
+            font-weight: bold;
+            color: #555;
+          }
+          
+          .info-value {
+            color: #333;
+          }
+          
+          .tag-preview {
+            width: 100%;
+            max-width: 450px;
+            height: 140px;
+            border: 3px solid #000;
+            margin: 25px auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 25px;
+            background: white;
+            box-sizing: border-box;
+            position: relative;
+          }
+          
+          .tag-left {
+            flex: 0 0 auto;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+            margin-right: 15px;
+          }
+          
+          .tag-center {
+            flex: 1;
+            text-align: center;
+            padding: 0 20px;
+          }
+          
+          .tag-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+            word-wrap: break-word;
+            max-width: 100%;
+          }
+          
+          .tag-right {
+            flex: 0 0 auto;
+            font-size: 16px;
+            color: #666;
+            font-weight: bold;
+            margin-left: 15px;
+          }
+          
+          .buttons {
+            text-align: center;
+            margin: 25px 0;
+          }
+          
+          .btn {
+            display: inline-block;
+            padding: 14px 24px;
+            margin: 8px;
+            border-radius: 8px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+          }
+          
+          .btn-print {
+            background: #2196F3;
+            color: white;
+          }
+          
+          .btn-print:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+          }
+          
+          .btn-download {
+            background: #FF9800;
+            color: white;
+          }
+          
+          .btn-download:hover {
+            background: #F57C00;
+            transform: translateY(-2px);
+          }
+          
+          .btn-close {
+            background: #666;
+            color: white;
+          }
+          
+          .btn-close:hover {
+            background: #444;
+            transform: translateY(-2px);
+          }
+          
+          .help-text {
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+          }
+
+          /* Mobile responsive */
+          @media screen and (max-width: 768px) {
+            body {
+              padding: 10px;
+            }
+            
+            .container {
+              padding: 15px;
+            }
+            
+            .tag-preview {
+              height: 120px;
+              padding: 12px 18px;
+            }
+            
+            .tag-name {
+              font-size: 20px;
+            }
+            
+            .tag-left,
+            .tag-right {
+              font-size: 11px;
+            }
+            
+            .btn {
+              padding: 12px 20px;
+              font-size: 15px;
+              margin: 5px;
+            }
+          }
+          
+          /* Print styles - Simplified for Android compatibility */
+          @media print {
+            body {
+              margin: 0;
+              padding: 0;
+              background: white;
+              font-family: Arial, sans-serif;
+            }
+            
+            .container {
+              box-shadow: none;
+              max-width: none;
+              padding: 0;
+              background: white;
+            }
+            
+            .header,
+            .info,
+            .buttons,
+            .help-text {
+              display: none !important;
+            }
+            
+            .tag-preview {
+              width: 90mm;
+              height: 29mm;
+              max-width: 90mm;
+              margin: 0;
+              border: 2px solid #000;
+              padding: 3mm 5mm;
+              page-break-inside: avoid;
+              position: absolute;
+              top: 0;
+              left: 0;
+            }
+            
+            .tag-left {
+              font-size: 7pt;
+              margin-right: 3mm;
+            }
+            
+            .tag-center {
+              padding: 0 2mm;
+            }
+            
+            .tag-name {
+              font-size: 12pt;
+            }
+            
+            .tag-right {
+              font-size: 8pt;
+              margin-left: 3mm;
+            }
+
+            @page {
+              size: 90mm 29mm;
+              margin: 0;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2>📋 Name Tag Ready</h2>
+          </div>
+          
+          <div class="info">
+            <div class="info-row">
+              <span class="info-label">Student:</span>
+              <span class="info-value">${student.nickname}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Category:</span>
+              <span class="info-value">${category}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Parent:</span>
+              <span class="info-value">${student.parentName || 'Not specified'}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phone:</span>
+              <span class="info-value">${student.parentPhone || 'Not specified'}</span>
+            </div>
+          </div>
+          
+          <div class="tag-preview">
+            <div class="tag-left">
+              <div>${student.parentName || 'Parent'}</div>
+              <div>${student.parentPhone || 'Phone'}</div>
+            </div>
+            <div class="tag-center">
+              <div class="tag-name">${student.nickname}</div>
+            </div>
+            <div class="tag-right">
+              ${category}
+            </div>
+          </div>
+          
+          <div class="buttons">
+            <button class="btn btn-print" onclick="window.print()">🖨️ Print Tag</button>
+            <button class="btn btn-download" onclick="downloadAsImage()">📱 Download Image</button>
+            <button class="btn btn-close" onclick="window.close()">✖️ Close</button>
+          </div>
+          
+          <div class="help-text">
+            <strong>💡 Printing Tips:</strong><br>
+            • Make sure your printer is set to 90mm x 29mm label size<br>
+            • If direct printing fails, use "Download Image" and print from gallery<br>
+            • For best results, use Chrome browser on Android
+          </div>
+        </div>
+
+        <script>
+          function downloadAsImage() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size (90mm x 29mm at 200 DPI for good quality)
+            canvas.width = 709;  // 90mm at 200 DPI
+            canvas.height = 229; // 29mm at 200 DPI
+            
+            // White background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Black border
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+            
+            // Left section - Parent info
+            ctx.fillStyle = '#333';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText('${student.parentName || 'Parent'}', 25, 45);
+            ctx.fillText('${student.parentPhone || 'Phone'}', 25, 75);
+            
+            // Center section - Student name
+            ctx.fillStyle = 'black';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Auto-adjust font size for long names
+            let fontSize = 32;
+            ctx.font = 'bold ' + fontSize + 'px Arial';
+            const maxWidth = 280;
+            while (ctx.measureText('${student.nickname}').width > maxWidth && fontSize > 16) {
+              fontSize -= 1;
+              ctx.font = 'bold ' + fontSize + 'px Arial';
+            }
+            
+            ctx.fillText('${student.nickname}', canvas.width / 2, canvas.height / 2);
+            
+            // Right section - Category
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('${category}', canvas.width - 25, canvas.height / 2);
+            
+            // Download the image
+            canvas.toBlob(function(blob) {
+              if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '${student.nickname.replace(/[^a-zA-Z0-9]/g, '_')}_nametag.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Show success message
+                alert('✅ Name tag image downloaded! You can find it in your Downloads folder and print it from there.');
+              } else {
+                alert('❌ Failed to generate image. Please try again.');
+              }
+            }, 'image/png', 1.0);
+          }
+
+          // Auto-focus window for better user experience
+          window.focus();
+        </script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.write(content);
+  printWindow.document.close();
+  printWindow.focus();
 }
 
-// Mobile/Tablet printing method
+// Improved mobile/tablet printing method
 function printNameTagMobile(student: Student, category: string) {
-  // Store original content
   const originalContent = document.body.innerHTML;
   const originalTitle = document.title;
-  
-  // Store scroll position
   const scrollY = window.scrollY;
 
-  // Create print content
   const printContent = `
     <!DOCTYPE html>
     <html>
@@ -191,292 +564,431 @@ function printNameTagMobile(student: Student, category: string) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Name Tag - ${student.nickname}</title>
         <style>
-          /* Reset all styles */
           * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
           }
 
-          /* Screen styles */
           @media screen {
             body {
-              font-family: 'Arial', sans-serif;
-              background: #f0f0f0;
-              padding: 20px;
-              min-height: 100vh;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              justify-content: center;
+              font-family: Arial, sans-serif;
+              background: #f5f5f5;
+              padding: 15px;
+              line-height: 1.4;
+            }
+            
+            .screen-only {
+              display: block;
             }
             
             .print-only {
               display: none;
             }
             
-            .screen-message {
+            .controls {
               text-align: center;
-              font-size: 18px;
-              color: #333;
-              margin: 30px 0;
+              margin-bottom: 25px;
               background: white;
               padding: 20px;
               border-radius: 10px;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+              box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             }
             
-            .preview {
-              background: white;
-              border: 3px solid #333;
-              margin: 20px auto;
-              padding: 0;
-              box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-              border-radius: 5px;
+            .controls h2 {
+              color: #333;
+              margin-bottom: 15px;
+              font-size: 24px;
             }
-
-            .back-button {
-              position: fixed;
-              top: 20px;
-              left: 20px;
-              background: #4CAF50;
-              color: white;
+            
+            .student-info {
+              background: #f8f9fa;
+              padding: 15px;
+              border-radius: 8px;
+              margin: 15px 0;
+              text-align: left;
+            }
+            
+            .student-info div {
+              margin: 8px 0;
+              font-size: 15px;
+            }
+            
+            .student-info strong {
+              color: #555;
+              display: inline-block;
+              width: 80px;
+            }
+            
+            .button {
+              display: inline-block;
+              padding: 15px 25px;
+              margin: 8px;
               border: none;
-              padding: 12px 20px;
+              border-radius: 8px;
               font-size: 16px;
-              border-radius: 25px;
+              font-weight: bold;
+              text-decoration: none;
               cursor: pointer;
-              z-index: 1000;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+              transition: all 0.3s ease;
+              min-width: 140px;
             }
-
-            .print-button {
+            
+            .print-btn {
               background: #2196F3;
               color: white;
-              border: none;
-              padding: 15px 30px;
-              font-size: 18px;
-              border-radius: 25px;
-              cursor: pointer;
-              margin-top: 20px;
-              box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             }
-          }
-
-          /* Print-specific styles */
-          @media print {
-            body {
-              margin: 0;
-              padding: 0;
+            
+            .print-btn:hover {
+              background: #1976D2;
+              transform: translateY(-2px);
+            }
+            
+            .back-btn {
+              background: #4CAF50;
+              color: white;
+            }
+            
+            .back-btn:hover {
+              background: #388E3C;
+              transform: translateY(-2px);
+            }
+            
+            .download-btn {
+              background: #FF9800;
+              color: white;
+            }
+            
+            .download-btn:hover {
+              background: #F57C00;
+              transform: translateY(-2px);
+            }
+            
+            .preview-container {
               background: white;
+              padding: 25px;
+              border-radius: 10px;
+              box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+              margin: 20px auto;
+              max-width: 650px;
             }
-
-            .screen-message, .back-button, .print-button {
-              display: none !important;
+            
+            .preview-title {
+              text-align: center;
+              margin-bottom: 20px;
+              color: #333;
+              font-size: 20px;
             }
-
-            .preview {
-              display: none !important;
-            }
-
-            .print-only {
-              display: block !important;
-              position: absolute;     
-              top: 0;              
-              left: 0;              
-            }
-
-            /* Set exact page size to match your Brother QL-820NWB sticker */
-            @page {
-              size: 90mm 29mm; /* Width x Height - matches your printer */
-              margin: 0;
-              padding: 0;
-            }
-
-            .tag {
-              width: 90mm;
-              height: 29mm;
+            
+            .preview-tag {
+              width: 100%;
+              max-width: 500px;
+              height: 160px;
+              margin: 0 auto 20px auto;
+              border: 3px solid #333;
+              background: white;
               display: flex;
               align-items: center;
               justify-content: space-between;
-              padding: 2mm 4mm;
-              font-family: 'Arial', sans-serif;
-              background: white;
-              border: 1px solid #000;
-              position: relative;
-              page-break-after: avoid;
+              padding: 20px 30px;
+              font-family: Arial, sans-serif;
               box-sizing: border-box;
             }
-
-            .left-section {
-              display: flex;
-              flex-direction: column;
-              align-items: flex-start;
-              font-size: 8pt;
+            
+            .preview-left {
+              flex: 0 0 auto;
+              font-size: 13px;
               color: #666;
-              line-height: 1.1;
-              min-width: 20mm;
+              line-height: 1.4;
+              margin-right: 20px;
             }
-
-            .center-section {
+            
+            .preview-center {
               flex: 1;
               text-align: center;
-              padding: 0 3mm;
-              display: flex;
-              align-items: center;
-              justify-content: center;
+              padding: 0 20px;
             }
-
-            .student-name {
-              font-size: 14pt;
+            
+            .preview-name {
+              font-size: 26px;
               font-weight: bold;
               color: #000;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              max-width: 100%;
+              word-wrap: break-word;
+              line-height: 1.2;
             }
-
-            .right-section {
-              font-size: 10pt;
+            
+            .preview-right {
+              flex: 0 0 auto;
+              font-size: 18px;
               color: #666;
               font-weight: bold;
-              min-width: 15mm;
+              margin-left: 20px;
+            }
+
+            .help-text {
+              background: #fff3cd;
+              border-left: 4px solid #ffc107;
+              padding: 15px;
+              border-radius: 8px;
+              margin-top: 20px;
+              font-size: 14px;
+              color: #856404;
+            }
+
+            /* Mobile responsive adjustments */
+            @media screen and (max-width: 768px) {
+              body {
+                padding: 10px;
+              }
+              
+              .controls {
+                padding: 15px;
+              }
+              
+              .button {
+                padding: 12px 20px;
+                font-size: 15px;
+                margin: 5px;
+                min-width: 120px;
+              }
+              
+              .preview-tag {
+                height: 130px;
+                padding: 15px 20px;
+              }
+              
+              .preview-name {
+                font-size: 22px;
+              }
+              
+              .preview-left,
+              .preview-right {
+                font-size: 12px;
+              }
+            }
+          }
+
+          @media print {
+            .screen-only {
+              display: none !important;
+            }
+            
+            .print-only {
+              display: block !important;
+              position: absolute;      /* Crucial for mobile rendering */
+              top: 0;                  /* Crucial for mobile rendering */
+              left: 0;                 /* Crucial for mobile rendering */
+            }
+
+            html, body {
+              width: 100%;
+              height: 100%;
+              margin: 0;
+              padding: 0;
+              background: white;
+              font-family: Arial, sans-serif;
+            }
+
+            .print-tag {
+              width: 90mm;
+              height: 29mm;
+              border: 2px solid black;
+              background: white;
+              display: table;
+              table-layout: fixed;
+              font-family: Arial, sans-serif;
+            }
+            
+            .print-content {
+              display: table-row;
+              width: 100%;
+              height: 100%;
+            }
+            
+            .print-left {
+              display: table-cell;
+              width: 25%;
+              padding: 3mm;
+              font-size: 7pt;
+              color: #333;
+              vertical-align: top;
+              line-height: 1.2;
+            }
+            
+            .print-center {
+              display: table-cell;
+              width: 50%;
+              text-align: center;
+              vertical-align: middle;
+              padding: 2mm;
+            }
+            
+            .print-name {
+              font-size: 12pt;
+              font-weight: bold;
+              color: black;
+            }
+            
+            .print-right {
+              display: table-cell;
+              width: 25%;
               text-align: right;
+              vertical-align: middle;
+              padding: 3mm;
+              font-size: 8pt;
+              font-weight: bold;
+              color: #333;
             }
 
-            /* Ensure colors print correctly on all devices */
-            * {
-              -webkit-print-color-adjust: exact !important;
-              color-adjust: exact !important;
-              print-color-adjust: exact !important;
-            }
-          }
-
-          /* Preview styles for screen */
-          .preview .tag {
-            width: 270px; /* 3x scale for preview */
-            height: 87px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 6px 12px;
-            font-family: Arial, sans-serif;
-            background: white;
-            border: none;
-            position: relative;
-            box-sizing: border-box;
-          }
-
-          .preview .left-section {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            font-size: 11px;
-            color: #666;
-            line-height: 1.2;
-            min-width: 60px;
-          }
-
-          .preview .center-section {
-            flex: 1;
-            text-align: center;
-            padding: 0 9px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-
-          .preview .student-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #000;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-          }
-
-          .preview .right-section {
-            font-size: 14px;
-            color: #666;
-            font-weight: bold;
-            min-width: 45px;
-            text-align: right;
-          }
-
-          /* Responsive adjustments */
-          @media screen and (max-width: 768px) {
-            .preview .tag {
-              width: 240px;
-              height: 78px;
-              padding: 5px 10px;
-            }
-            
-            .preview .student-name {
-              font-size: 16px;
-            }
-            
-            .preview .left-section {
-              font-size: 10px;
-            }
-            
-            .preview .right-section {
-              font-size: 12px;
+            @page {
+              size: 90mm 29mm;
+              margin: 0;
             }
           }
         </style>
       </head>
       <body>
-        <button class="back-button" onclick="window.history.back()">← Back</button>
-        
-        <div class="screen-message">
-          <h2>📋 Name Tag Preview</h2>
-          <p>This is how your name tag will look when printed</p>
-          <p><strong>Student:</strong> ${student.nickname}</p>
-          <p><strong>Category:</strong> ${category}</p>
-          <button class="print-button" onclick="window.print()">🖨️ Print Name Tag</button>
-        </div>
+        <div class="screen-only">
+          <div class="controls">
+            <h2>📋 Name Tag Preview</h2>
+            
+            <div class="student-info">
+              <div><strong>Student:</strong> ${student.nickname}</div>
+              <div><strong>Category:</strong> ${category}</div>
+              <div><strong>Parent:</strong> ${student.parentName || 'Not specified'}</div>
+              <div><strong>Phone:</strong> ${student.parentPhone || 'Not specified'}</div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+              <button class="button print-btn" onclick="window.print()">🖨️ Print Tag</button>
+              <button class="button back-btn" onclick="goBack()">← Back</button>
+              <button class="button download-btn" onclick="downloadAsImage()">📱 Download</button>
+            </div>
+            
+            <div class="help-text">
+              <strong>💡 Printing Instructions:</strong><br>
+              • Set your printer to 90mm x 29mm label size<br>
+              • If printing fails, try the Download option<br>
+              • For Android tablets, download works better than direct printing
+            </div>
+          </div>
 
-        <div class="preview">
-          <div class="tag">
-            <div class="left-section">
-              <div>${student.parentName || 'Parent'}</div>
-              <div>${student.parentPhone || 'Phone'}</div>
-            </div>
-            <div class="center-section">
-              <div class="student-name">${student.nickname}</div>
-            </div>
-            <div class="right-section">
-              ${category}
+          <div class="preview-container">
+            <h3 class="preview-title">Preview (Actual Size Will Be Smaller)</h3>
+            <div class="preview-tag">
+              <div class="preview-left">
+                <div>${student.parentName || 'Parent'}</div>
+                <div>${student.parentPhone || 'Phone'}</div>
+              </div>
+              <div class="preview-center">
+                <div class="preview-name">${student.nickname}</div>
+              </div>
+              <div class="preview-right">
+                ${category}
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- This will only show when printing -->
         <div class="print-only">
-          <div class="tag">
-            <div class="left-section">
-              <div>${student.parentName || 'Parent'}</div>
-              <div>${student.parentPhone || 'Phone'}</div>
-            </div>
-            <div class="center-section">
-              <div class="student-name">${student.nickname}</div>
-            </div>
-            <div class="right-section">
-              ${category}
+          <div class="print-tag">
+            <div class="print-content">
+              <div class="print-left">
+                <div>${student.parentName || 'Parent'}</div>
+                <div>${student.parentPhone || 'Phone'}</div>
+              </div>
+              <div class="print-center">
+                <div class="print-name">${student.nickname}</div>
+              </div>
+              <div class="print-right">
+                ${category}
+              </div>
             </div>
           </div>
         </div>
+
+        <script>
+          function goBack() {
+            window.history.back();
+          }
+          
+          function downloadAsImage() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size (90mm x 29mm at 200 DPI)
+            canvas.width = 709;  
+            canvas.height = 229; 
+            
+            // White background
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Black border
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+            
+            // Left section - Parent info
+            ctx.fillStyle = '#333';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+            ctx.fillText('${student.parentName || 'Parent'}', 25, 45);
+            ctx.fillText('${student.parentPhone || 'Phone'}', 25, 75);
+            
+            // Center section - Student name
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold 32px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Auto-adjust font size for long names
+            let fontSize = 32;
+            ctx.font = 'bold ' + fontSize + 'px Arial';
+            const maxWidth = 280;
+            while (ctx.measureText('${student.nickname}').width > maxWidth && fontSize > 16) {
+              fontSize -= 1;
+              ctx.font = 'bold ' + fontSize + 'px Arial';
+            }
+            
+            ctx.fillText('${student.nickname}', canvas.width / 2, canvas.height / 2);
+            
+            // Right section - Category
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 20px Arial';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('${category}', canvas.width - 25, canvas.height / 2);
+            
+            // Download
+            canvas.toBlob(function(blob) {
+              if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '${student.nickname.replace(/[^a-zA-Z0-9]/g, '_')}_nametag.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }
+            }, 'image/png');
+          }
+
+          window.addEventListener('popstate', function() {
+            goBack();
+          });
+        </script>
       </body>
     </html>
   `;
 
-  // Replace body content
+  // Replace page content
   document.body.innerHTML = printContent;
   document.title = `Name Tag - ${student.nickname}`;
 
-  // Add event listener for back navigation
+  // Handle back navigation
   const handlePopstate = () => {
     document.body.innerHTML = originalContent;
     document.title = originalTitle;
@@ -485,145 +997,35 @@ function printNameTagMobile(student: Student, category: string) {
   };
   
   window.addEventListener('popstate', handlePopstate);
-
-  // Auto-print after a delay (optional - user can also click the print button)
-  setTimeout(() => {
-    // Uncomment the line below if you want automatic printing
-    // window.print();
-  }, 1000);
 }
 
-// Desktop printing method (improved version of your existing code)
-function printNameTagDesktop(student: Student, category: string) {
-  const content = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>Name Tag - ${student.nickname}</title>
-        <style>
-          @page {
-            size: 90mm 29mm;
-            margin: 0;
-          }
-          
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          
-          body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            width: 90mm;
-            height: 29mm;
-            background: white;
-          }
-          
-          .tag {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 2mm 4mm;
-            border: 1px solid #000;
-            position: relative;
-            box-sizing: border-box;
-          }
-          
-          .left-section {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            font-size: 8pt;
-            color: #666;
-            line-height: 1.1;
-            min-width: 20mm;
-          }
-          
-          .center-section {
-            flex: 1;
-            text-align: center;
-            padding: 0 3mm;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          
-          .student-name {
-            font-size: 14pt;
-            font-weight: bold;
-            color: #000;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-          }
-          
-          .right-section {
-            font-size: 10pt;
-            color: #666;
-            font-weight: bold;
-            min-width: 15mm;
-            text-align: right;
-          }
+// Main print function with improved device detection
+export function printNameTag(student: Student) {
+  const age = calculateAge(student.dateOfBirth);
+  const category = getCategory(age);
 
-          * {
-            -webkit-print-color-adjust: exact;
-            color-adjust: exact;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="tag">
-          <div class="left-section">
-            <div>${student.parentName || 'Parent'}</div>
-            <div>${student.parentPhone || 'Phone'}</div>
-          </div>
-          <div class="center-section">
-            <div class="student-name">${student.nickname}</div>
-          </div>
-          <div class="right-section">
-            ${category}
-          </div>
-        </div>
-      </body>
-    </html>
-  `;
+  // Detailed device detection
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isAndroid = /android/i.test(userAgent);
+  const isIOS = /iphone|ipad|ipod/i.test(userAgent);
+  const isTablet = /tablet|ipad/i.test(userAgent) || 
+                   (window.screen && window.screen.width >= 768 && window.screen.height >= 1024) ||
+                   (/android/i.test(userAgent) && !/mobile/i.test(userAgent));
+  const isMobile = /mobile/i.test(userAgent) && !isTablet;
+  const isDesktop = !isAndroid && !isIOS && !isTablet && !isMobile;
 
-  // Create iframe for desktop printing
-  const iframe = document.createElement('iframe');
-  iframe.style.position = 'absolute';
-  iframe.style.width = '0';
-  iframe.style.height = '0';
-  iframe.style.border = '0';
-  iframe.style.visibility = 'hidden';
-  iframe.style.opacity = '0';
-  document.body.appendChild(iframe);
-
-  const doc = iframe.contentWindow?.document;
-  if (doc) {
-    doc.open();
-    doc.write(content);
-    doc.close();
-    
-    // Wait for content to load
-    iframe.onload = () => {
-      setTimeout(() => {
-        iframe.contentWindow?.focus();
-        iframe.contentWindow?.print();
-        
-        // Clean up
-        setTimeout(() => {
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
-        }, 2000);
-      }, 500);
-    };
+  if (isAndroid) {
+    // Android devices (both mobile and tablet) - use popup method
+    printNameTagAndroidFallback(student, category);
+  } else if (isIOS && isTablet) {
+    // iPad - use mobile method
+    printNameTagMobile(student, category);
+  } else if (isMobile) {
+    // Mobile phones - use mobile method
+    printNameTagMobile(student, category);
+  } else {
+    // Desktop - use iframe method
+    printNameTagDesktop(student, category);
   }
 }
 
@@ -641,7 +1043,7 @@ export function generateNameTagImage(student: Student): Promise<string> {
       return;
     }
     
-    // Set canvas size (90mm x 29mm at 300 DPI)
+    // Set canvas size (90mm x 29mm at 300 DPI for high quality)
     canvas.width = 1063; // 90mm at 300 DPI
     canvas.height = 343;  // 29mm at 300 DPI
     
@@ -651,27 +1053,28 @@ export function generateNameTagImage(student: Student): Promise<string> {
     
     // Draw border
     ctx.strokeStyle = 'black';
-    ctx.lineWidth = 4;
-    ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+    ctx.lineWidth = 6;
+    ctx.strokeRect(3, 3, canvas.width - 6, canvas.height - 6);
     
     // Left section - Parent info
-    ctx.fillStyle = '#666';
-    ctx.font = '24px Arial';
+    ctx.fillStyle = '#333';
+    ctx.font = '28px Arial';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText(student.parentName || 'Parent', 40, 60);
-    ctx.fillText(student.parentPhone || 'Phone', 40, 100);
+    ctx.fillText(student.parentName || 'Parent', 50, 70);
+    ctx.fillText(student.parentPhone || 'Phone', 50, 110);
     
     // Center section - Student name
     ctx.fillStyle = 'black';
-    ctx.font = 'bold 42px Arial';
+    ctx.font = 'bold 48px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
-    // Handle long names
-    let fontSize = 42;
+    // Handle long names by reducing font size
+    let fontSize = 48;
     ctx.font = `bold ${fontSize}px Arial`;
-    while (ctx.measureText(student.nickname).width > 400 && fontSize > 20) {
+    const maxWidth = 450;
+    while (ctx.measureText(student.nickname).width > maxWidth && fontSize > 24) {
       fontSize -= 2;
       ctx.font = `bold ${fontSize}px Arial`;
     }
@@ -679,67 +1082,47 @@ export function generateNameTagImage(student: Student): Promise<string> {
     ctx.fillText(student.nickname, canvas.width / 2, canvas.height / 2);
     
     // Right section - Category
-    ctx.fillStyle = '#666';
-    ctx.font = 'bold 30px Arial';
+    ctx.fillStyle = '#333';
+    ctx.font = 'bold 36px Arial';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillText(category, canvas.width - 40, canvas.height / 2);
+    ctx.fillText(category, canvas.width - 50, canvas.height / 2);
     
     // Convert to data URL
-    resolve(canvas.toDataURL('image/png'));
+    resolve(canvas.toDataURL('image/png', 1.0));
   });
 }
 
-// Function to download name tag as image (useful for tablets)
+// Function to download name tag as image
 export async function downloadNameTag(student: Student) {
   try {
     const dataUrl = await generateNameTagImage(student);
     
-    // Create blob for better browser compatibility
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx?.drawImage(img, 0, 0);
-      
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.download = `${student.nickname.replace(/[^a-zA-Z0-9]/g, '_')}_nametag.png`;
-          link.href = url;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        }
-      }, 'image/png');
-    };
-    
-    img.src = dataUrl;
-  } catch (error) {
-    console.error('Error generating name tag image:', error);
-    
-    // Fallback: try direct data URL download
-    const dataUrl = await generateNameTagImage(student);
+    if (!dataUrl) {
+      throw new Error('Failed to generate image data');
+    }
+
+    // Create a more compatible download method
     const link = document.createElement('a');
     link.download = `${student.nickname.replace(/[^a-zA-Z0-9]/g, '_')}_nametag.png`;
     link.href = dataUrl;
+    
+    // Add to document, click, and remove
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+  } catch (error) {
+    console.error('Error generating name tag image:', error);
+    
+    // Show user-friendly error message
+    alert('❌ Failed to generate image. Please try the print option instead.');
   }
 }
 
 // Quick print function for simple usage
 export function quickPrintNameTag(student: Student) {
-  // Force mobile printing method for better tablet compatibility
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
-  printNameTagMobile(student, category);
+  printNameTag(student);
 }
 
 // Utility function to check if device supports printing
@@ -752,9 +1135,15 @@ export function showPrintOptions(student: Student) {
   const age = calculateAge(student.dateOfBirth);
   const category = getCategory(age);
   
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isAndroid = /android/i.test(userAgent);
+  const isIOS = /iphone|ipad|ipod/i.test(userAgent);
+  
   const options = {
     canPrint: isPrintingSupported(),
-    canDownload: 'canvas' in document.createElement('canvas'),
+    canDownload: true, // Canvas is widely supported
+    recommendDownload: isAndroid, // Recommend download for Android
+    deviceType: isAndroid ? 'android' : isIOS ? 'ios' : 'desktop',
     studentInfo: {
       name: student.nickname,
       category: category,
@@ -764,4 +1153,65 @@ export function showPrintOptions(student: Student) {
   };
   
   return options;
+}
+
+// Enhanced function for better Android tablet compatibility
+export function printNameTagWithOptions(student: Student, options: { 
+  forceMethod?: 'popup' | 'mobile' | 'desktop' | 'download';
+  showPreview?: boolean;
+} = {}) {
+  const age = calculateAge(student.dateOfBirth);
+  const category = getCategory(age);
+  
+  switch (options.forceMethod) {
+    case 'popup':
+      printNameTagAndroidFallback(student, category);
+      break;
+    case 'mobile':
+      printNameTagMobile(student, category);
+      break;
+    case 'desktop':
+      printNameTagDesktop(student, category);
+      break;
+    case 'download':
+      downloadNameTag(student);
+      break;
+    default:
+      printNameTag(student); // Use auto-detection
+  }
+}
+
+// Debug function to test different print methods
+export function debugPrintMethods(student: Student) {
+  const age = calculateAge(student.dateOfBirth);
+  const category = getCategory(age);
+  
+  console.log('=== Debug Print Methods ===');
+  console.log('Student:', student);
+  console.log('Category:', category);
+  console.log('User Agent:', navigator.userAgent);
+  console.log('Screen size:', window.screen.width, 'x', window.screen.height);
+  console.log('Print supported:', isPrintingSupported());
+  console.log('Options:', showPrintOptions(student));
+}
+
+// Function to handle print errors gracefully
+export function handlePrintError(student: Student, error: Error) {
+  console.error('Print error:', error);
+  
+  const fallbackMessage = `
+    ❌ Printing failed. Here are your options:
+    
+    1. Try downloading the image instead
+    2. Use a different browser (Chrome works best)
+    3. Check your printer settings (90mm x 29mm)
+    4. Contact support if the issue persists
+    
+    Student: ${student.nickname}
+    Error: ${error.message}
+  `;
+  
+  if (confirm(fallbackMessage + '\n\nWould you like to download the image instead?')) {
+    downloadNameTag(student);
+  }
 }
