@@ -178,7 +178,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           }
 
           body {
-            font-family: Arial, sans-serif;
+            font-family: Poppins, sans-serif;
             background: #f5f5f5;
             padding: 20px;
             line-height: 1.4;
@@ -497,7 +497,7 @@ function printNameTagMobile(student: Student, category: string) {
 
           @media screen {
             body {
-              font-family: Arial, sans-serif;
+              font-family: Poppins, sans-serif;
               background: #f5f5f5;
               padding: 15px;
               line-height: 1.4;
@@ -607,7 +607,7 @@ function printNameTagMobile(student: Student, category: string) {
               align-items: center;
               justify-content: space-between;
               padding: 20px 30px;
-              font-family: Arial, sans-serif;
+              font-family: Poppins, sans-serif;
               box-sizing: border-box;
             }
             
@@ -712,7 +712,7 @@ function printNameTagMobile(student: Student, category: string) {
               background: white;
               display: table;
               table-layout: fixed;
-              font-family: Arial, sans-serif;
+              font-family: Poppins, sans-serif;
             }
             
             .print-content {
