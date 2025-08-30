@@ -5,100 +5,172 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 // This function is for the initial login (Step 1)
 export async function login(password: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
-  const response = await fetch(${API_URL}/login, { // Calls the main login route
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
-  });
-  if (response.ok) {
-    return await response.json();
+  try {
+    const response = await fetch(`${API_URL}/login`, { // Calls the main login route
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password }),
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    return { success: false, isAdmin: false };
+  } catch (error) {
+    console.error('Login error:', error);
+    return { success: false, isAdmin: false };
   }
-  return { success: false, isAdmin: false };
 }
 
 // This new function is for the admin-only login (Step 2)
 export async function adminLogin(password: string, authToken: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
-  const response = await fetch(${API_URL}/admin-login, { // Calls the new admin-only route
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'auth-secret': authToken, // Must provide the initial auth token to prove we're already logged in
-    },
-    body: JSON.stringify({ password }),
-  });
-  if (response.ok) {
-    return await response.json();
+  try {
+    const response = await fetch(`${API_URL}/admin-login`, { // Calls the new admin-only route
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'auth-secret': authToken, // Must provide the initial auth token to prove we're already logged in
+      },
+      body: JSON.stringify({ password }),
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+    return { success: false, isAdmin: false };
+  } catch (error) {
+    console.error('Admin login error:', error);
+    return { success: false, isAdmin: false };
   }
-  return { success: false, isAdmin: false };
 }
 
-
 export async function verifyClearDataPassword(password: string, adminSecret: string): Promise<boolean> {
-    const response = await fetch(${API_URL}/verify-clear-data-password, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'admin-secret': adminSecret,
-        },
-        body: JSON.stringify({ password }),
+  try {
+    const response = await fetch(`${API_URL}/verify-clear-data-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'admin-secret': adminSecret,
+      },
+      body: JSON.stringify({ password }),
     });
     return response.ok;
+  } catch (error) {
+    console.error('Verify clear data password error:', error);
+    return false;
+  }
 }
 
 export async function getStudents(): Promise<Student[]> {
-  const response = await fetch(${API_URL}/students);
-  const result = await response.json();
-  return result.data || [];
+  try {
+    const response = await fetch(`${API_URL}/students`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch students');
+    }
+    const result = await response.json();
+    return result.data || [];
+  } catch (error) {
+    console.error('Get students error:', error);
+    return [];
+  }
 }
 
 export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>, authToken: string): Promise<Student> {
-  const newStudent: Student = { ...student, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-  await fetch(${API_URL}/students, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'auth-secret': authToken,
-    },
-    body: JSON.stringify(newStudent),
-  });
-  return newStudent;
+  const newStudent: Student = { 
+    ...student, 
+    id: crypto.randomUUID(), 
+    createdAt: new Date().toISOString() 
+  };
+  
+  try {
+    const response = await fetch(`${API_URL}/students`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'auth-secret': authToken,
+      },
+      body: JSON.stringify(newStudent),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to add student');
+    }
+    
+    return newStudent;
+  } catch (error) {
+    console.error('Add student error:', error);
+    throw error;
+  }
 }
 
 export async function updateStudent(id: string, updates: Partial<Student>, adminSecret: string): Promise<void> {
-  await fetch(${API_URL}/students/${id}, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'admin-secret': adminSecret,
-      'role': 'admin'
-    },
-    body: JSON.stringify(updates),
-  });
+  try {
+    const response = await fetch(`${API_URL}/students/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'admin-secret': adminSecret,
+        'role': 'admin'
+      },
+      body: JSON.stringify(updates),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to update student');
+    }
+  } catch (error) {
+    console.error('Update student error:', error);
+    throw error;
+  }
 }
 
 export async function deleteStudent(id: string, adminSecret: string): Promise<void> {
-    await fetch(${API_URL}/students/${id}, {
-        method: 'DELETE',
-        headers: {
-            'admin-secret': adminSecret,
-            'role': 'admin'
-        }
+  try {
+    const response = await fetch(`${API_URL}/students/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'admin-secret': adminSecret,
+        'role': 'admin'
+      }
     });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete student');
+    }
+  } catch (error) {
+    console.error('Delete student error:', error);
+    throw error;
+  }
 }
 
 export async function clearAllData(adminSecret: string): Promise<void> {
-  await fetch(${API_URL}/clear-all-data, {
-    method: 'DELETE',
-    headers: {
-      'admin-secret': adminSecret,
+  try {
+    const response = await fetch(`${API_URL}/clear-all-data`, {
+      method: 'DELETE',
+      headers: {
+        'admin-secret': adminSecret,
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to clear all data');
     }
-  });
+  } catch (error) {
+    console.error('Clear all data error:', error);
+    throw error;
+  }
 }
 
 export async function getAttendanceRecords(): Promise<AttendanceRecord[]> {
-  const response = await fetch(${API_URL}/attendance);
-  const result = await response.json();
-  return result.data || [];
+  try {
+    const response = await fetch(`${API_URL}/attendance`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch attendance records');
+    }
+    const result = await response.json();
+    return result.data || [];
+  } catch (error) {
+    console.error('Get attendance records error:', error);
+    return [];
+  }
 }
 
 export async function addAttendanceRecord(studentId: string, sessionTime: string): Promise<AttendanceRecord> {
@@ -109,18 +181,27 @@ export async function addAttendanceRecord(studentId: string, sessionTime: string
     checkinTimestamp: new Date().toISOString(),
   };
 
-  await fetch(${API_URL}/attendance, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(newRecord),
-  });
-  return newRecord;
+  try {
+    const response = await fetch(`${API_URL}/attendance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newRecord),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to add attendance record');
+    }
+    
+    return newRecord;
+  } catch (error) {
+    console.error('Add attendance record error:', error);
+    throw error;
+  }
 }
 
-
-// --- Helper Functions (No changes needed here) ---
+// --- Helper Functions ---
 
 export function calculateAge(dateOfBirth: string): number {
   return differenceInYears(new Date(), new Date(dateOfBirth));
@@ -134,7 +215,7 @@ export function getCategory(age: number): string {
 }
 
 export function isSunday(): boolean {
-  return true;
+  return true
 }
 
 export function getCurrentSession(): string {
@@ -242,7 +323,7 @@ export function printNameTag(student: Student) {
     </html>
   `;
 
-  // This new method avoids pop-ups by using a hidden iframe.
+  // This method avoids pop-ups by using a hidden iframe.
   const iframe = document.createElement('iframe');
   iframe.style.position = 'absolute';
   iframe.style.width = '0';
@@ -261,6 +342,8 @@ export function printNameTag(student: Student) {
   
   // Clean up the iframe after a delay
   setTimeout(() => {
-    document.body.removeChild(iframe);
+    if (document.body.contains(iframe)) {
+      document.body.removeChild(iframe);
+    }
   }, 1000);
 }
