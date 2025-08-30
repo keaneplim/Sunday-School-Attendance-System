@@ -151,11 +151,9 @@ export function getCurrentSession(): string {
   return '16:00';
 }
 
-// --- Desktop printing method (iframe) ---
-// --- Desktop printing method (iframe) ---
-// --- Desktop printing method (iframe) ---
+// --- PRINTING FUNCTIONS FOR ALL DEVICES ---
 
-// Desktop printing method (improved version)
+// Desktop printing method (iframe) - from your previous code
 function printNameTagDesktop(student: Student, category: string) {
   const content = `
     <!DOCTYPE html>
@@ -551,9 +549,6 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
   printWindow.focus();
 }
 
-
-// --- IMPROVED PRINTING FUNCTIONS FOR ANDROID TABLETS ---
-
 // Android-specific printing method using popup window
 function printNameTagAndroidFallback(student: Student, category: string) {
   const printWindow = window.open('', '_blank', 'width=800,height=600');
@@ -695,7 +690,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             background: #1976D2;
             transform: translateY(-2px);
           }
-          
           
           .btn-close {
             background: #666;
@@ -861,8 +855,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
         </div>
 
         <script>
-          
-
           // Auto-focus window for better user experience
           window.focus();
         </script>
@@ -875,64 +867,124 @@ function printNameTagAndroidFallback(student: Student, category: string) {
   printWindow.focus();
 }
 
-// Improved mobile/tablet printing method
+// Improved mobile/tablet printing method (your current working version)
 function printNameTagMobile(student: Student, category: string) {
-  const printWindow = window.open('', '_blank', 'width=800,height=600');
-  if (!printWindow) {
-    alert('Please allow popups for printing to work.');
-    return;
-  }
-
   const content = `
-    <!DOCTYPE html>
     <html>
       <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Name Tag - ${student.nickname}</title>
+        <title>Print Name Tag</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
         <style>
-          body { font-family: Poppins, sans-serif; margin:0; padding:0; }
-          .print-tag {
-            width: 90mm; height: 29mm;
-            display: grid; grid-template-columns: 1fr 2fr 1fr;
-            align-items: center;
-            padding: 2mm 4mm;
-            background: white;
-            box-sizing: border-box;
+          @page {
+            size: 90mm 29mm;
+            margin: 0;
           }
-          .print-left { font-size: 7pt; line-height: 1.2; }
-          .print-center { text-align: center; font-size: 26pt; font-weight: bold; }
-          .print-right { font-size: 8pt; font-weight: bold; text-align: right; }
-          @page { size: 90mm 29mm; margin: 0; }
+          body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+          }
+          .tag {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: -5px;
+          }
+          .main-info {
+            text-align: center;
+          }
+          h3 {
+            font-size: 26pt;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+          }
+          .category {
+            position: absolute;
+            bottom: 35px;
+            right: 5px;
+            text-align: right;
+            font-size: 15pt;
+            color: #4b5563;
+          }
+          .parent-info {
+            position: absolute;
+            bottom: 30px;
+            left: 5px;
+            text-align: left;
+            font-size: 10pt;
+            color: #4b5563;
+          }
+          .parent-info span {
+            display: block;
+          }
+          hr {
+            width: 100%;
+            border: none;
+            border-top: 2px solid black;
+            margin: 8px 0;
+          }
         </style>
       </head>
       <body>
-        <div class="print-tag">
-          <div class="print-left">
-            <div>${student.parentName || 'Parent'}</div>
-            <div>${student.parentPhone || 'Phone'}</div>
+        <div class="tag">
+          <div class="main-info">
+            <h3>${student.nickname}</h3>
           </div>
-          <div class="print-center">${student.nickname}</div>
-          <div class="print-right">${category}</div>
+          <hr />
+          <div class="footer">
+            <div class="parent-info">
+              <span>${student.parentName}</span>
+              <span>${student.parentPhone}</span>
+            </div>
+            <div class="category">
+              ${category}
+            </div>
+          </div>
         </div>
-        <script>
-          window.onload = () => { window.print(); window.onafterprint = () => window.close(); };
-        </script>
       </body>
     </html>
   `;
 
-  printWindow.document.write(content);
-  printWindow.document.close();
-}
+  // Use iframe method for tablets (your working version)
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'absolute';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  document.body.appendChild(iframe);
 
+  const doc = iframe.contentWindow?.document;
+  if (doc) {
+    doc.open();
+    doc.write(content);
+    doc.close();
+    iframe.contentWindow?.focus();
+    iframe.contentWindow?.print();
+  }
+  
+  // Clean up the iframe after a delay
+  setTimeout(() => {
+    if (document.body.contains(iframe)) {
+      document.body.removeChild(iframe);
+    }
+  }, 1000);
+}
 
 // Main print function with improved device detection
 export function printNameTag(student: Student) {
   const age = calculateAge(student.dateOfBirth);
   const category = getCategory(age);
 
-  // Detailed device detection
+  // Enhanced device detection
   const userAgent = navigator.userAgent.toLowerCase();
   const isAndroid = /android/i.test(userAgent);
   const isIOS = /iphone|ipad|ipod/i.test(userAgent);
@@ -942,82 +994,23 @@ export function printNameTag(student: Student) {
   const isMobile = /mobile/i.test(userAgent) && !isTablet;
   const isDesktop = !isAndroid && !isIOS && !isTablet && !isMobile;
 
-  if (isAndroid) {
-    // Android devices (both mobile and tablet) - use popup method
+  console.log('Device detection:', {
+    userAgent,
+    isAndroid,
+    isIOS,
+    isTablet,
+    isMobile,
+    isDesktop,
+    screenWidth: window.screen.width,
+    screenHeight: window.screen.height
+  });
+
+  if (isAndroid && isTablet) {
+    // Android tablets - use your working iframe method
+    console.log('Using tablet method for Android tablet');
+    printNameTagMobile(student, category);
+  } else if (isAndroid) {
+    // Android phones - use popup method
+    console.log('Using Android fallback for Android phone');
     printNameTagAndroidFallback(student, category);
-  } else if (isIOS && isTablet) {
-    // iPad - use mobile method
-    printNameTagMobile(student, category);
-  } else if (isMobile) {
-    // Mobile phones - use mobile method
-    printNameTagMobile(student, category);
-  } else {
-    // Desktop - use iframe method
-    printNameTagDesktop(student, category);
-  }
-}
-
-// Quick print function for simple usage
-export function quickPrintNameTag(student: Student) {
-  printNameTag(student);
-}
-
-// Utility function to check if device supports printing
-export function isPrintingSupported(): boolean {
-  return 'print' in window && typeof window.print === 'function';
-}
-
-// Enhanced function for better Android tablet compatibility
-export function printNameTagWithOptions(student: Student, options: { 
-  forceMethod?: 'popup' | 'mobile' | 'desktop' | 'download';
-  showPreview?: boolean;
-} = {}) {
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
-  
-  switch (options.forceMethod) {
-    case 'popup':
-      printNameTagAndroidFallback(student, category);
-      break;
-    case 'mobile':
-      printNameTagMobile(student, category);
-      break;
-    case 'desktop':
-      printNameTagDesktop(student, category);
-      break;
-    default:
-      printNameTag(student); // Use auto-detection
-  }
-}
-
-// Debug function to test different print methods
-export function debugPrintMethods(student: Student) {
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
-  
-  console.log('=== Debug Print Methods ===');
-  console.log('Student:', student);
-  console.log('Category:', category);
-  console.log('User Agent:', navigator.userAgent);
-  console.log('Screen size:', window.screen.width, 'x', window.screen.height);
-  console.log('Print supported:', isPrintingSupported());
-}
-
-// Function to handle print errors gracefully
-export function handlePrintError(student: Student, error: Error) {
-  console.error('Print error:', error);
-  
-  const fallbackMessage = `
-    ❌ Printing failed. Here are your options:
-    
-    1. Try downloading the image instead
-    2. Use a different browser (Chrome works best)
-    3. Check your printer settings (90mm x 29mm)
-    4. Contact support if the issue persists
-    
-    Student: ${student.nickname}
-    Error: ${error.message}
-  `;
-
-  }
-}
+  } else if
