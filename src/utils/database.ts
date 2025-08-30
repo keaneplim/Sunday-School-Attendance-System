@@ -154,61 +154,401 @@ export function getCurrentSession(): string {
 // --- Desktop printing method (iframe) ---
 // --- Desktop printing method (iframe) ---
 // --- Desktop printing method (iframe) ---
+
+// Desktop printing method (improved version)
 function printNameTagDesktop(student: Student, category: string) {
+  const content = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Name Tag - ${student.nickname}</title>
+        <style>
+          @page {
+            size: 90mm 29mm;
+            margin: 0;
+          }
+          
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 90mm;
+            height: 29mm;
+            background: white;
+          }
+          
+          .tag {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 2mm 4mm;
+            border: 1px solid #000;
+            position: relative;
+            box-sizing: border-box;
+          }
+          
+          .left-section {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            font-size: 8pt;
+            color: #666;
+            line-height: 1.1;
+            min-width: 20mm;
+          }
+          
+          .center-section {
+            flex: 1;
+            text-align: center;
+            padding: 0 3mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .student-name {
+            font-size: 14pt;
+            font-weight: bold;
+            color: #000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+          }
+          
+          .right-section {
+            font-size: 10pt;
+            color: #666;
+            font-weight: bold;
+            min-width: 15mm;
+            text-align: right;
+          }
+
+          * {
+            -webkit-print-color-adjust: exact;
+            color-adjust: exact;
+            print-color-adjust: exact;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="tag">
+          <div class="left-section">
+            <div>${student.parentName || 'Parent'}</div>
+            <div>${student.parentPhone || 'Phone'}</div>
+          </div>
+          <div class="center-section">
+            <div class="student-name">${student.nickname}</div>
+          </div>
+          <div class="right-section">
+            ${category}
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  // Create iframe for desktop printing
   const iframe = document.createElement('iframe');
   iframe.style.position = 'absolute';
   iframe.style.width = '0';
   iframe.style.height = '0';
   iframe.style.border = '0';
+  iframe.style.visibility = 'hidden';
+  iframe.style.opacity = '0';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow?.document;
+  if (doc) {
+    doc.open();
+    doc.write(content);
+    doc.close();
+    
+    // Wait for content to load
+    iframe.onload = () => {
+      setTimeout(() => {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        
+        // Clean up
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+        }, 2000);
+      }, 500);
+    };
+  }
+}
+
+// Alternative desktop printing method using new window (more reliable)
+function printNameTagDesktopAlternative(student: Student, category: string) {
+  const printWindow = window.open('', '_blank', 'width=600,height=400');
+  
+  if (!printWindow) {
+    alert('Please allow popups for printing to work');
+    return;
+  }
 
   const content = `
+    <!DOCTYPE html>
     <html>
       <head>
+        <meta charset="UTF-8">
         <title>Name Tag - ${student.nickname}</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
         <style>
-          body { font-family: Poppins, sans-serif; margin:0; padding:0; }
-          .tag { 
-            width: 90mm; height: 29mm;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 3mm 5mm; box-sizing: border-box; 
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
           }
-          .left { font-size: 7pt; color:#000; line-height:1.2; }
-          .center { text-align:center; font-size: 24pt; font-weight:bold; }
-          .right { font-size: 8pt; font-weight:bold; text-align:right; }
-          @page { size: 90mm 29mm; margin:0; }
+
+          body {
+            font-family: Poppins, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+            line-height: 1.4;
+          }
+          
+          .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+          }
+          
+          .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+          }
+          
+          .preview-section {
+            text-align: center;
+            margin: 20px 0;
+          }
+          
+          .tag-preview {
+            width: 360px;
+            height: 116px;
+            border: 3px solid #000;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: white;
+            box-sizing: border-box;
+            font-family: Poppins, sans-serif;
+          }
+          
+          .preview-left {
+            font-size: 10px;
+            color: #000;
+            line-height: 1.3;
+            text-align: left;
+            flex: 0 0 auto;
+            margin-right: 15px;
+          }
+          
+          .preview-center {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+            padding: 0 15px;
+          }
+          
+          .preview-right {
+            font-size: 12px;
+            color: #000;
+            font-weight: bold;
+            text-align: right;
+            flex: 0 0 auto;
+            margin-left: 15px;
+          }
+          
+          .buttons {
+            text-align: center;
+            margin: 25px 0;
+          }
+          
+          .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            margin: 8px;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+          }
+          
+          .btn-print {
+            background: #2196F3;
+            color: white;
+          }
+          
+          .btn-print:hover {
+            background: #1976D2;
+          }
+          
+          .btn-close {
+            background: #666;
+            color: white;
+          }
+          
+          .btn-close:hover {
+            background: #444;
+          }
+          
+          .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #1976d2;
+            border-left: 4px solid #2196F3;
+          }
+
+          /* Print styles for desktop */
+          @media print {
+            body {
+              margin: 0;
+              padding: 0;
+              background: white;
+              width: 90mm;
+              height: 29mm;
+            }
+            
+            .container {
+              box-shadow: none;
+              max-width: none;
+              padding: 0;
+              background: white;
+              margin: 0;
+            }
+            
+            .header,
+            .preview-section,
+            .buttons,
+            .instructions {
+              display: none !important;
+            }
+            
+            .tag-preview {
+              width: 90mm;
+              height: 29mm;
+              max-width: 90mm;
+              margin: 0;
+              border: 1px solid #000;
+              padding: 2.5mm 4mm;
+              position: absolute;
+              top: 0;
+              left: 0;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              background: white;
+            }
+            
+            .preview-left {
+              font-size: 7pt;
+              margin-right: 3mm;
+              flex: 0 0 auto;
+            }
+            
+            .preview-center {
+              font-size: 14pt;
+              flex: 1;
+              padding: 0 2mm;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            
+            .preview-right {
+              font-size: 8pt;
+              margin-left: 3mm;
+              flex: 0 0 auto;
+            }
+
+            @page {
+              size: 90mm 29mm;
+              margin: 0;
+            }
+            
+            * {
+              -webkit-print-color-adjust: exact !important;
+              color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          }
         </style>
       </head>
       <body>
-        <div class="tag">
-          <div class="left">
-            <div>${student.parentName || 'Parent'}</div>
-            <div>${student.parentPhone || 'Phone'}</div>
+        <div class="container">
+          <div class="header">
+            <h2>Desktop Print Preview</h2>
+            <p>Name tag for: <strong>${student.nickname}</strong></p>
           </div>
-          <div class="center">${student.nickname}</div>
-          <div class="right">${category}</div>
+          
+          <div class="preview-section">
+            <p><strong>Preview (scaled for screen):</strong></p>
+            
+            <div class="tag-preview">
+              <div class="preview-left">
+                <div>${student.parentName || 'Parent'}</div>
+                <div>${student.parentPhone || 'Phone'}</div>
+              </div>
+              <div class="preview-center">${student.nickname}</div>
+              <div class="preview-right">${category}</div>
+            </div>
+          </div>
+          
+          <div class="buttons">
+            <button class="btn btn-print" onclick="window.print()">Print Name Tag</button>
+            <button class="btn btn-close" onclick="window.close()">Close</button>
+          </div>
+          
+          <div class="instructions">
+            <strong>Desktop Printing Instructions:</strong><br>
+            • Make sure your Brother QL-820NWB is selected as printer<br>
+            • Set paper size to 90mm x 29mm in print settings<br>
+            • If print dialog doesn't appear, check popup blockers
+          </div>
         </div>
+
+        <script>
+          // Auto-focus for better printing
+          window.focus();
+          
+          // Optional: Auto-print after delay (uncomment if wanted)
+          // setTimeout(() => window.print(), 1500);
+        </script>
       </body>
     </html>
   `;
-  
-  document.body.appendChild(iframe);
 
-  iframe.contentDocument!.open();
-  iframe.contentDocument!.write(content);
-  iframe.contentDocument!.close();
-
-  // THIS IS THE FIX: Wait for the iframe to fully load before printing
-  iframe.onload = function() {
-    iframe.contentWindow!.focus();
-    iframe.contentWindow!.print();
-    
-    // Clean up the iframe after a short delay
-    setTimeout(() => {
-        if (iframe.parentNode) {
-            iframe.parentNode.removeChild(iframe);
-        }
-    }, 500);
-  };
+  printWindow.document.write(content);
+  printWindow.document.close();
+  printWindow.focus();
 }
 
 
