@@ -1013,4 +1013,100 @@ export function printNameTag(student: Student) {
     // Android phones - use popup method
     console.log('Using Android fallback for Android phone');
     printNameTagAndroidFallback(student, category);
-  } else if
+  } else if (isIOS && isTablet) {
+    // iPad - use mobile method
+    console.log('Using mobile method for iPad');
+    printNameTagMobile(student, category);
+  } else if (isMobile) {
+    // Mobile phones - use mobile method
+    console.log('Using mobile method for phone');
+    printNameTagMobile(student, category);
+  } else {
+    // Desktop/Laptop - use desktop method with popup window
+    console.log('Using desktop method for laptop/desktop');
+    printNameTagDesktopAlternative(student, category);
+  }
+}
+
+// Quick print function for simple usage
+export function quickPrintNameTag(student: Student) {
+  printNameTag(student);
+}
+
+// Utility function to check if device supports printing
+export function isPrintingSupported(): boolean {
+  return 'print' in window && typeof window.print === 'function';
+}
+
+// Enhanced function for better compatibility with force options
+export function printNameTagWithOptions(student: Student, options: { 
+  forceMethod?: 'popup' | 'mobile' | 'desktop' | 'iframe';
+  showPreview?: boolean;
+} = {}) {
+  const age = calculateAge(student.dateOfBirth);
+  const category = getCategory(age);
+  
+  switch (options.forceMethod) {
+    case 'popup':
+      printNameTagAndroidFallback(student, category);
+      break;
+    case 'mobile':
+    case 'iframe':
+      printNameTagMobile(student, category);
+      break;
+    case 'desktop':
+      printNameTagDesktopAlternative(student, category);
+      break;
+    default:
+      printNameTag(student); // Use auto-detection
+  }
+}
+
+// Debug function to test different print methods
+export function debugPrintMethods(student: Student) {
+  const age = calculateAge(student.dateOfBirth);
+  const category = getCategory(age);
+  
+  console.log('=== Debug Print Methods ===');
+  console.log('Student:', student);
+  console.log('Category:', category);
+  console.log('User Agent:', navigator.userAgent);
+  console.log('Screen size:', window.screen.width, 'x', window.screen.height);
+  console.log('Print supported:', isPrintingSupported());
+  
+  // Test device detection
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isAndroid = /android/i.test(userAgent);
+  const isIOS = /iphone|ipad|ipod/i.test(userAgent);
+  const isTablet = /tablet|ipad/i.test(userAgent) || 
+                   (window.screen && window.screen.width >= 768 && window.screen.height >= 1024) ||
+                   (/android/i.test(userAgent) && !/mobile/i.test(userAgent));
+  const isMobile = /mobile/i.test(userAgent) && !isTablet;
+  const isDesktop = !isAndroid && !isIOS && !isTablet && !isMobile;
+  
+  console.log('Device Detection Results:');
+  console.log('- Android:', isAndroid);
+  console.log('- iOS:', isIOS);
+  console.log('- Tablet:', isTablet);
+  console.log('- Mobile:', isMobile);
+  console.log('- Desktop:', isDesktop);
+}
+
+// Function to handle print errors gracefully
+export function handlePrintError(student: Student, error: Error) {
+  console.error('Print error:', error);
+  
+  const fallbackMessage = `
+    ❌ Printing failed. Here are your options:
+    
+    1. Try a different print method using printNameTagWithOptions()
+    2. Use a different browser (Chrome works best)
+    3. Check your printer settings (90mm x 29mm)
+    4. Contact support if the issue persists
+    
+    Student: ${student.nickname}
+    Error: ${error.message}
+  `;
+
+  alert(fallbackMessage);
+}
