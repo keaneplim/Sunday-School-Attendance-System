@@ -245,13 +245,11 @@ export function printNameTag(student: Student) {
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-
         <style>
           @page {
             size: 90mm 29mm;
             margin: 0;
           }
-
           body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -268,14 +266,12 @@ export function printNameTag(student: Student) {
             justify-content: flex-start;
             align-items: center;
             padding-top: -5px;
-
           }
           .main-info {
             text-align: center;
           }
           h3 {
             font-size: 26pt;
-
             font-weight: bold;
             margin: 0;
             padding: 0;
@@ -325,6 +321,7 @@ export function printNameTag(student: Student) {
         </div>
       </body>
     </html>
+
   `;
 
   // This method avoids pop-ups by using a hidden iframe.
