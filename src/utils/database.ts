@@ -247,7 +247,7 @@ export function printNameTag(student: Student) {
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
         <style>
           @page {
-            size: 90mm 29mm;
+            size: 90mm 38mm;
             margin: 0;
           }
           body {
@@ -270,13 +270,16 @@ export function printNameTag(student: Student) {
           .main-info {
             text-align: center;
           }
+
           h3 {
             font-size: 26pt;
             font-weight: bold;
             margin: 0;
             padding: 0;
+
           }
           .category {
+
             position: absolute;
             bottom: 35px;
             right: 5px;
@@ -285,6 +288,7 @@ export function printNameTag(student: Student) {
             color: #4b5563;
           }
           .parent-info {
+
             position: absolute;
             bottom: 30px;
             left: 5px;
@@ -295,12 +299,14 @@ export function printNameTag(student: Student) {
           .parent-info span {
             display: block;
           }
+
           hr {
             width: 100%;
             border: none;
             border-top: 2px solid black;
             margin: 8px 0;
           }
+
         </style>
       </head>
       <body>
@@ -318,6 +324,7 @@ export function printNameTag(student: Student) {
               ${category}
             </div>
           </div>
+
         </div>
       </body>
     </html>
