@@ -241,316 +241,97 @@ export function printNameTag(student: Student) {
   const content = `
     <html>
       <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+        <title>Print Name Tag</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-        <title>Name Tag - ${student.nickname}</title>
-        <style>
-          * {
 
+        <style>
+          @page {
+            size: 90mm 29mm;
             margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+
+
           }
 
           body {
-            font-family: Poppins, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-            line-height: 1.4;
-          }
-          
-          .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-          }
-          
-          .header {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #000;
-          }
-          
-          .info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-          }
-          
-          .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-          }
-          
-          .info-label {
-            font-weight: bold;
-            color: #555;
-          }
-          
-          .info-value {
-            color: #333;
-          }
-          
-          .tag-preview {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
             width: 100%;
-            max-width: 450px;
-            height: 140px;
-            border: 3px solid #000;
-            margin: 25px auto;
-            display: flex;
-
-
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 25px;
-            background: white;
+            height: 100%;
+          }
+          .tag {
+            width: 100%;
+            height: 100%;
             box-sizing: border-box;
-            position: relative;
+
+
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: -5px;
           }
-          
-          .tag-left {
-            flex: 0 0 auto;
-            font-size: 12px;
-            color: #000;
-            line-height: 1.4;
-            margin-right: 15px;
-          }
-          
-          .tag-center {
-            flex: 1;
+          .main-info {
+
+
             text-align: center;
-            padding: 0 20px;
+
           }
-          
-          .tag-name {
-            font-size: 24px;
+          h3 {
+            font-size: 26pt;
+
             font-weight: bold;
-            color: #000;
-            word-wrap: break-word;
-            max-width: 100%;
-
-
-
-
-
-
-
+            margin: 0;
+            padding: 0;
           }
-          
-          .tag-right {
-            flex: 0 0 auto;
-            font-size: 16px;
-            color: #000;
-            font-weight: bold;
-            margin-left: 15px;
+          .category {
+            position: absolute;
+            bottom: 35px;
+            right: 5px;
+            text-align: right;
+            font-size: 15pt;
+            color: #4b5563;
           }
-          
-          .buttons {
-            text-align: center;
-            margin: 25px 0;
+          .parent-info {
+            position: absolute;
+            bottom: 30px;
+            left: 5px;
+            text-align: left;
+            font-size: 10pt;
+            color: #4b5563;
           }
-          
-          .btn {
-            display: inline-block;
-            padding: 14px 24px;
-            margin: 8px;
-            border-radius: 8px;
+          .parent-info span {
+            display: block;
+          }
+          hr {
+            width: 100%;
+
             border: none;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-          }
-          
-          .btn-print {
-            background: #2196F3;
-            color: white;
-          }
-          
-          .btn-print:hover {
-            background: #1976D2;
-            transform: translateY(-2px);
-          }
-          
-          
-          .btn-close {
-            background: #666;
-            color: white;
-          }
-          
-          .btn-close:hover {
-            background: #444;
-            transform: translateY(-2px);
-          }
-          
-          .help-text {
-            text-align: center;
-            color: #777;
-            font-size: 14px;
-            margin-top: 20px;
-            padding: 15px;
-            background: #fff3cd;
-            border-radius: 8px;
-            border-left: 4px solid #ffc107;
-          }
-
-          /* Mobile responsive */
-          @media screen and (max-width: 768px) {
-            body {
-              padding: 10px;
-            }
-            
-            .container {
-              padding: 15px;
-            }
-            
-            .tag-preview {
-              height: 120px;
-              padding: 12px 18px;
-            }
-            
-            .tag-name {
-              font-size: 20px;
-            }
-            
-            .tag-left,
-            .tag-right {
-              font-size: 11px;
-            }
-            
-            .btn {
-              padding: 12px 20px;
-              font-size: 15px;
-              margin: 5px;
-            }
-          }
-          
-          /* Print styles - Simplified for Android compatibility */
-          @media print {
-            body {
-              margin: 0;
-              padding: 0;
-              background: white;
-              font-family: Poppins, sans-serif;
-            }
-            
-            .container {
-              box-shadow: none;
-              max-width: none;
-              padding: 0;
-              background: white;
-            }
-            
-            .header,
-            .info,
-            .buttons,
-            .help-text {
-              display: none !important;
-            }
-            
-            .tag-preview {
-              width: 90mm;
-              height: 29mm;
-              max-width: 90mm;
-              margin: 0;
-              padding: 3mm 5mm;
-              page-break-inside: avoid;
-              position: absolute;
-              top: 0;
-              left: 0;
-            }
-            
-            .tag-left {
-              font-size: 7pt;
-              margin-right: 3mm;
-            }
-            
-            .tag-center {
-              padding: 0 2mm;
-            }
-            
-            .tag-name {
-              font-size: 12pt;
-            }
-            
-            .tag-right {
-              font-size: 8pt;
-              margin-left: 3mm;
-            }
-
-            @page {
-              size: 90mm 29mm;
-              margin: 0;
-            }
+            border-top: 2px solid black;
+            margin: 8px 0;
           }
         </style>
       </head>
       <body>
-        <div class="container">
-          <div class="header">
-            <h2>📋 Name Tag Ready</h2>
+        <div class="tag">
+          <div class="main-info">
+            <h3>${student.nickname}</h3>
+
           </div>
-          
-          <div class="info">
-            <div class="info-row">
-              <span class="info-label">Student:</span>
-              <span class="info-value">${student.nickname}</span>
+          <hr />
+          <div class="footer">
+            <div class="parent-info">
+              <span>${student.parentName}</span>
+              <span>${student.parentPhone}</span>
             </div>
-            <div class="info-row">
-              <span class="info-label">Category:</span>
-              <span class="info-value">${category}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Parent:</span>
-              <span class="info-value">${student.parentName || 'Not specified'}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Phone:</span>
-              <span class="info-value">${student.parentPhone || 'Not specified'}</span>
-            </div>
-          </div>
-          
-          <div class="tag-preview">
-            <div class="tag-left">
-              <div>${student.parentName || 'Parent'}</div>
-              <div>${student.parentPhone || 'Phone'}</div>
-            </div>
-            <div class="tag-center">
-              <div class="tag-name">${student.nickname}</div>
-            </div>
-            <div class="tag-right">
+            <div class="category">
               ${category}
             </div>
           </div>
-          
-          <div class="buttons">
-            <button class="btn btn-print" onclick="window.print()">🖨️ Print Tag</button>
-            <button class="btn btn-close" onclick="window.close()">✖️ Close</button>
-          </div>
-          
-          <div class="help-text">
-            <strong>💡 Printing Tips:</strong><br>
-            • Make sure your printer is set to 90mm x 29mm label size<br>
-            • If direct printing fails, use "Download Image" and print from gallery<br>
-            • For best results, use Chrome browser on Android
-          </div>
+
         </div>
-
-        <script>
-          
-
-          // Auto-focus window for better user experience
-          window.focus();
-        </script>
       </body>
     </html>
   `;
