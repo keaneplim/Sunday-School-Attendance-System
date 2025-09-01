@@ -1,176 +1,103 @@
 import { Student, AttendanceRecord } from '../types';
 import { differenceInYears, format } from 'date-fns';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = 'http://localhost:4000/api';
 
 // This function is for the initial login (Step 1)
 export async function login(password: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
-  try {
-    const response = await fetch(`${API_URL}/login`, { // Calls the main login route
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password }),
-    });
-    if (response.ok) {
-      return await response.json();
-    }
-    return { success: false, isAdmin: false };
-  } catch (error) {
-    console.error('Login error:', error);
-    return { success: false, isAdmin: false };
+  const response = await fetch(`${API_URL}/login`, { // Calls the main login route
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+  if (response.ok) {
+    return await response.json();
   }
+  return { success: false, isAdmin: false };
 }
 
 // This new function is for the admin-only login (Step 2)
 export async function adminLogin(password: string, authToken: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
-  try {
-    const response = await fetch(`${API_URL}/admin-login`, { // Calls the new admin-only route
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-          'auth-secret': authToken, // Must provide the initial auth token to prove we're already logged in
-      },
-      body: JSON.stringify({ password }),
-    });
-    if (response.ok) {
-      return await response.json();
-    }
-    return { success: false, isAdmin: false };
-  } catch (error) {
-    console.error('Admin login error:', error);
-    return { success: false, isAdmin: false };
+  const response = await fetch(`${API_URL}/admin-login`, { // Calls the new admin-only route
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'auth-secret': authToken, // Must provide the initial auth token to prove we're already logged in
+    },
+    body: JSON.stringify({ password }),
+  });
+  if (response.ok) {
+    return await response.json();
   }
+  return { success: false, isAdmin: false };
 }
 
 export async function verifyClearDataPassword(password: string, adminSecret: string): Promise<boolean> {
-  try {
     const response = await fetch(`${API_URL}/verify-clear-data-password`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'admin-secret': adminSecret,
-      },
-      body: JSON.stringify({ password }),
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'admin-secret': adminSecret,
+        },
+        body: JSON.stringify({ password }),
     });
     return response.ok;
-  } catch (error) {
-    console.error('Verify clear data password error:', error);
-    return false;
-  }
 }
 
 export async function getStudents(): Promise<Student[]> {
-  try {
-    const response = await fetch(`${API_URL}/students`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch students');
-    }
-    const result = await response.json();
-    return result.data || [];
-  } catch (error) {
-    console.error('Get students error:', error);
-    return [];
-  }
+  const response = await fetch(`${API_URL}/students`);
+  const result = await response.json();
+  return result.data || [];
 }
 
 export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>, authToken: string): Promise<Student> {
-  const newStudent: Student = { 
-    ...student, 
-    id: crypto.randomUUID(), 
-    createdAt: new Date().toISOString() 
-  };
-  
-  try {
-    const response = await fetch(`${API_URL}/students`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'auth-secret': authToken,
-      },
-      body: JSON.stringify(newStudent),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to add student');
-    }
-    
-    return newStudent;
-  } catch (error) {
-    console.error('Add student error:', error);
-    throw error;
-  }
+  const newStudent: Student = { ...student, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
+  await fetch(`${API_URL}/students`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'auth-secret': authToken,
+    },
+    body: JSON.stringify(newStudent),
+  });
+  return newStudent;
 }
 
 export async function updateStudent(id: string, updates: Partial<Student>, adminSecret: string): Promise<void> {
-  try {
-    const response = await fetch(`${API_URL}/students/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'admin-secret': adminSecret,
-        'role': 'admin'
-      },
-      body: JSON.stringify(updates),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to update student');
-    }
-  } catch (error) {
-    console.error('Update student error:', error);
-    throw error;
-  }
+  await fetch(`${API_URL}/students/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'admin-secret': adminSecret,
+      'role': 'admin'
+    },
+    body: JSON.stringify(updates),
+  });
 }
 
 export async function deleteStudent(id: string, adminSecret: string): Promise<void> {
-  try {
-    const response = await fetch(`${API_URL}/students/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'admin-secret': adminSecret,
-        'role': 'admin'
-      }
+    await fetch(`${API_URL}/students/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'admin-secret': adminSecret,
+            'role': 'admin'
+        }
     });
-    
-    if (!response.ok) {
-      throw new Error('Failed to delete student');
-    }
-  } catch (error) {
-    console.error('Delete student error:', error);
-    throw error;
-  }
 }
 
 export async function clearAllData(adminSecret: string): Promise<void> {
-  try {
-    const response = await fetch(`${API_URL}/clear-all-data`, {
-      method: 'DELETE',
-      headers: {
-        'admin-secret': adminSecret,
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to clear all data');
+  await fetch(`${API_URL}/clear-all-data`, {
+    method: 'DELETE',
+    headers: {
+      'admin-secret': adminSecret,
     }
-  } catch (error) {
-    console.error('Clear all data error:', error);
-    throw error;
-  }
+  });
 }
 
 export async function getAttendanceRecords(): Promise<AttendanceRecord[]> {
-  try {
-    const response = await fetch(`${API_URL}/attendance`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch attendance records');
-    }
-    const result = await response.json();
-    return result.data || [];
-  } catch (error) {
-    console.error('Get attendance records error:', error);
-    return [];
-  }
+  const response = await fetch(`${API_URL}/attendance`);
+  const result = await response.json();
+  return result.data || [];
 }
 
 export async function addAttendanceRecord(studentId: string, sessionTime: string): Promise<AttendanceRecord> {
@@ -181,24 +108,14 @@ export async function addAttendanceRecord(studentId: string, sessionTime: string
     checkinTimestamp: new Date().toISOString(),
   };
 
-  try {
-    const response = await fetch(`${API_URL}/attendance`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newRecord),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to add attendance record');
-    }
-    
-    return newRecord;
-  } catch (error) {
-    console.error('Add attendance record error:', error);
-    throw error;
-  }
+  await fetch(`${API_URL}/attendance`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(newRecord),
+  });
+  return newRecord;
 }
 
 // --- Helper Functions ---
@@ -215,7 +132,7 @@ export function getCategory(age: number): string {
 }
 
 export function isSunday(): boolean {
-  return true
+  return true;
 }
 
 export function getCurrentSession(): string {
@@ -234,337 +151,313 @@ export function getCurrentSession(): string {
   return '16:00';
 }
 
-export function printNameTag(student: Student) {
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
+// Device detection function
+function detectDevice() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isAndroid = /android/i.test(userAgent);
+  const isIOS = /iphone|ipad|ipod/i.test(userAgent);
+  const isTablet = /tablet|ipad/i.test(userAgent) || 
+                  (window.screen && window.screen.width >= 768 && window.screen.height >= 1024) ||
+                  (/android/i.test(userAgent) && !/mobile/i.test(userAgent));
+  const isMobile = /mobile/i.test(userAgent) && !isTablet;
+  const isDesktop = !isAndroid && !isIOS && !isTablet && !isMobile;
 
+  return {
+    isAndroid,
+    isIOS,
+    isTablet,
+    isMobile,
+    isDesktop
+  };
+}
+
+// Enhanced print function for tablet compatibility
+function printNameTagTablet(student: Student, category: string) {
   const content = `
     <html>
       <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Print Name Tag</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-        <title>Name Tag - ${student.nickname}</title>
         <style>
-          * {
+          @page {
+            size: 90mm 38mm;
+            margin: 0;
+          }
+          body {
+            font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-          }
-
-          body {
-            font-family: Poppins, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-            line-height: 1.4;
-          }
-          
-          .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-          }
-          
-          .header {
-            text-align: center;
-            margin-bottom: 25px;
-            color: #000;
-          }
-          
-          .info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-          }
-          
-          .info-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-          }
-          
-          .info-label {
-            font-weight: bold;
-            color: #555;
-          }
-          
-          .info-value {
-            color: #333;
-          }
-          
-          .tag-preview {
             width: 100%;
-            max-width: 450px;
-            height: 140px;
-            border: 3px solid #000;
-            margin: 25px auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 25px;
-            background: white;
+            height: 100%;
+          }
+          .tag {
+            width: 100%;
+            height: 100%;
             box-sizing: border-box;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: -5px;
           }
-          
-          .tag-left {
-            flex: 0 0 auto;
-            font-size: 12px;
-            color: #000;
-            line-height: 1.4;
-            margin-right: 15px;
-          }
-          
-          .tag-center {
-            flex: 1;
+          .main-info {
             text-align: center;
-            padding: 0 20px;
           }
-          
-          .tag-name {
-            font-size: 24px;
+
+          h3 {
+            font-size: 26pt;
             font-weight: bold;
-            color: #000;
-            word-wrap: break-word;
-            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            /* text-decoration: underline */
           }
-          
-          .tag-right {
-            flex: 0 0 auto;
-            font-size: 16px;
-            color: #000;
-            font-weight: bold;
-            margin-left: 15px;
+          .category {
+            /* Positioned at the top right */
+            position: absolute;
+            bottom: 35px;
+            right: 5px;
+            text-align: right;
+            font-size: 15pt; /* Smaller font size for parent info */
+            color: #4b5563; /* gray-600 */
           }
-          
-          .buttons {
-            text-align: center;
-            margin: 25px 0;
+          .parent-info {
+            /* Positioned at the bottom left */
+            position: absolute;
+            bottom: 30px;
+            left: 5px;
+            text-align: left;
+            font-size: 10pt; /* Smaller font size for parent info */
+            color: #4b5563; /* gray-600 */
           }
-          
-          .btn {
-            display: inline-block;
-            padding: 14px 24px;
-            margin: 8px;
-            border-radius: 8px;
+          .parent-info span {
+            display: block; /* Makes name and number appear on separate lines */
+          }
+
+          hr {
+            width: 100%; /* Make the line slightly shorter than the tag */
             border: none;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-          }
-          
-          .btn-print {
-            background: #2196F3;
-            color: white;
-          }
-          
-          .btn-print:hover {
-            background: #1976D2;
-            transform: translateY(-2px);
-          }
-          
-          
-          .btn-close {
-            background: #666;
-            color: white;
-          }
-          
-          .btn-close:hover {
-            background: #444;
-            transform: translateY(-2px);
-          }
-          
-          .help-text {
-            text-align: center;
-            color: #777;
-            font-size: 14px;
-            margin-top: 20px;
-            padding: 15px;
-            background: #fff3cd;
-            border-radius: 8px;
-            border-left: 4px solid #ffc107;
+            border-top: 2px solid black;
+            margin: 8px 0; /* Add some space above and below the line */
           }
 
-          /* Mobile responsive */
-          @media screen and (max-width: 768px) {
+          /* Tablet-specific optimizations */
+          @media screen {
             body {
-              padding: 10px;
+              background: #f5f5f5;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 100vh;
+              padding: 20px;
             }
             
-            .container {
-              padding: 15px;
-            }
-            
-            .tag-preview {
-              height: 120px;
-              padding: 12px 18px;
-            }
-            
-            .tag-name {
-              font-size: 20px;
-            }
-            
-            .tag-left,
-            .tag-right {
-              font-size: 11px;
-            }
-            
-            .btn {
-              padding: 12px 20px;
-              font-size: 15px;
-              margin: 5px;
-            }
-          }
-          
-          /* Print styles - Simplified for Android compatibility */
-          @media print {
-            body {
-              margin: 0;
-              padding: 0;
+            .tag {
               background: white;
-              font-family: Poppins, sans-serif;
-            }
-            
-            .container {
-              box-shadow: none;
-              max-width: none;
-              padding: 0;
-              background: white;
-            }
-            
-            .header,
-            .info,
-            .buttons,
-            .help-text {
-              display: none !important;
-            }
-            
-            .tag-preview {
+              border: 2px solid #333;
+              border-radius: 8px;
+              box-shadow: 0 4px 15px rgba(0,0,0,0.1);
               width: 90mm;
-              height: 29mm;
-              max-width: 90mm;
-              margin: 0;
-              padding: 3mm 5mm;
-              page-break-inside: avoid;
-              position: absolute;
-              top: 0;
-              left: 0;
+              height: 38mm;
+              position: relative;
             }
             
-            .tag-left {
-              font-size: 7pt;
-              margin-right: 3mm;
+            .print-info {
+              position: fixed;
+              top: 20px;
+              left: 50%;
+              transform: translateX(-50%);
+              background: #2196F3;
+              color: white;
+              padding: 10px 20px;
+              border-radius: 6px;
+              font-size: 14px;
+              z-index: 1000;
+              animation: fadeOut 3s ease-in-out;
             }
             
-            .tag-center {
-              padding: 0 2mm;
-            }
-            
-            .tag-name {
-              font-size: 12pt;
-            }
-            
-            .tag-right {
-              font-size: 8pt;
-              margin-left: 3mm;
-            }
-
-            @page {
-              size: 90mm 29mm;
-              margin: 0;
+            @keyframes fadeOut {
+              0% { opacity: 1; }
+              70% { opacity: 1; }
+              100% { opacity: 0; }
             }
           }
+
         </style>
       </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h2>📋 Name Tag Ready</h2>
+      <body onload="handlePrintLoad()">
+        <div class="print-info" id="printInfo">Name tag printed successfully!</div>
+        <div class="tag">
+          <div class="main-info">
+            <h3>${student.nickname}</h3>
           </div>
-          
-          <div class="info">
-            <div class="info-row">
-              <span class="info-label">Student:</span>
-              <span class="info-value">${student.nickname}</span>
+          <hr />
+          <div class="footer">
+            <div class="parent-info">
+              <span>${student.parentName}</span>
+              <span>${student.parentPhone}</span>
             </div>
-            <div class="info-row">
-              <span class="info-label">Category:</span>
-              <span class="info-value">${category}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Parent:</span>
-              <span class="info-value">${student.parentName || 'Not specified'}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Phone:</span>
-              <span class="info-value">${student.parentPhone || 'Not specified'}</span>
-            </div>
-          </div>
-          
-          <div class="tag-preview">
-            <div class="tag-left">
-              <div>${student.parentName || 'Parent'}</div>
-              <div>${student.parentPhone || 'Phone'}</div>
-            </div>
-            <div class="tag-center">
-              <div class="tag-name">${student.nickname}</div>
-            </div>
-            <div class="tag-right">
+            <div class="category">
               ${category}
             </div>
           </div>
-          
-          <div class="buttons">
-            <button class="btn btn-print" onclick="window.print()">🖨️ Print Tag</button>
-            <button class="btn btn-close" onclick="window.close()">✖️ Close</button>
-          </div>
-          
-          <div class="help-text">
-            <strong>💡 Printing Tips:</strong><br>
-            • Make sure your printer is set to 90mm x 29mm label size<br>
-            • If direct printing fails, use "Download Image" and print from gallery<br>
-            • For best results, use Chrome browser on Android
-          </div>
         </div>
-
+        
         <script>
+          function handlePrintLoad() {
+            // Auto-print on load
+            setTimeout(() => {
+              window.print();
+              
+              // Show confirmation and auto-close after 3 seconds
+              setTimeout(() => {
+                window.close();
+              }, 3000);
+            }, 100);
+          }
           
-
-          // Auto-focus window for better user experience
-          window.focus();
+          // Handle print dialog events
+          window.addEventListener('afterprint', function() {
+            // Additional cleanup if needed
+          });
+          
+          window.addEventListener('beforeprint', function() {
+            // Hide print info during actual printing
+            const printInfo = document.getElementById('printInfo');
+            if (printInfo) {
+              printInfo.style.display = 'none';
+            }
+          });
         </script>
       </body>
     </html>
   `;
 
-  // This method avoids pop-ups by using a hidden iframe.
-  const iframe = document.createElement('iframe');
-  iframe.style.position = 'absolute';
-  iframe.style.width = '0';
-  iframe.style.height = '0';
-  iframe.style.border = '0';
-  document.body.appendChild(iframe);
+  const printWindow = window.open('', '', 'height=600,width=800');
 
-  const doc = iframe.contentWindow?.document;
-  if (doc) {
-    doc.open();
-    doc.write(content);
-    doc.close();
-    iframe.contentWindow?.focus();
-    iframe.contentWindow?.print();
+  if (printWindow) {
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.focus();
   }
-  
-  // Clean up the iframe after a delay
-  setTimeout(() => {
-    if (document.body.contains(iframe)) {
-      document.body.removeChild(iframe);
-    }
-  }, 1000);
+}
+
+// Enhanced main print function with device detection
+export function printNameTag(student: Student) {
+  const age = calculateAge(student.dateOfBirth);
+  const category = getCategory(age);
+  const device = detectDevice();
+
+  // For tablets and mobile devices, use enhanced method
+  if (device.isTablet || device.isMobile) {
+    printNameTagTablet(student, category);
+    return;
+  }
+
+  // Original laptop/desktop method (unchanged)
+  const content = `
+    <html>
+      <head>
+        <title>Print Name Tag</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+        <style>
+          @page {
+            size: 90mm 38mm;
+            margin: 0;
+          }
+          body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+          }
+          .tag {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: -5px;
+          }
+          .main-info {
+            text-align: center;
+          }
+
+          h3 {
+            font-size: 26pt;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            /* text-decoration: underline */
+          }
+          .category {
+            /* Positioned at the top right */
+            position: absolute;
+            bottom: 35px;
+            right: 5px;
+            text-align: right;
+            font-size: 15pt; /* Smaller font size for parent info */
+            color: #4b5563; /* gray-600 */
+          }
+          .parent-info {
+            /* Positioned at the bottom left */
+            position: absolute;
+            bottom: 30px;
+            left: 5px;
+            text-align: left;
+            font-size: 10pt; /* Smaller font size for parent info */
+            color: #4b5563; /* gray-600 */
+          }
+          .parent-info span {
+            display: block; /* Makes name and number appear on separate lines */
+          }
+
+          hr {
+            width: 100%; /* Make the line slightly shorter than the tag */
+            border: none;
+            border-top: 2px solid black;
+            margin: 8px 0; /* Add some space above and below the line */
+          }
+
+        </style>
+      </head>
+      <body onload="window.print()">
+        <div class="tag">
+          <div class="main-info">
+            <h3>${student.nickname}</h3>
+          </div>
+          <hr />
+          <div class="footer">
+            <div class="parent-info">
+              <span>${student.parentName}</span>
+              <span>${student.parentPhone}</span>
+            </div>
+            <div class="category">
+              ${category}
+            </div>
+          </div>
+
+        </div>
+      </body>
+    </html>
+  `;
+
+  const printWindow = window.open('', '', 'height=200,width=400');
+
+  if (printWindow) {
+    printWindow.document.write(content);
+
+    printWindow.document.close();
+    printWindow.onload = function() {
+      printWindow.focus();
+      printWindow.print();
+      printWindow.close();
+    };
+  }
 }
