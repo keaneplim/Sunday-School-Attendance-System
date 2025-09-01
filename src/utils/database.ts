@@ -234,104 +234,10 @@ export function getCurrentSession(): string {
   return '16:00';
 }
 
-export function printNameTag(student: Student) {
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
+// --- UNIVERSAL PRINTING LOGIC ---
 
-  const content = `
-    <html>
-      <head>
-        <title>Print Name Tag</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-        <style>
-          @page {
-            size: 90mm 38mm;
-            margin: 0;
-          }
-          body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-          }
-          .tag {
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            padding-top: -5px;
-          }
-          .main-info {
-            text-align: center;
-          }
-
-          h3 {
-            font-size: 26pt;
-            font-weight: bold;
-            margin: 0;
-            padding: 0;
-
-          }
-          .category {
-
-            position: absolute;
-            bottom: 35px;
-            right: 5px;
-            text-align: right;
-            font-size: 15pt;
-            color: #4b5563;
-          }
-          .parent-info {
-
-            position: absolute;
-            bottom: 30px;
-            left: 5px;
-            text-align: left;
-            font-size: 10pt;
-            color: #4b5563;
-          }
-          .parent-info span {
-            display: block;
-          }
-
-          hr {
-            width: 100%;
-            border: none;
-            border-top: 2px solid black;
-            margin: 8px 0;
-          }
-
-        </style>
-      </head>
-      <body>
-        <div class="tag">
-          <div class="main-info">
-            <h3>${student.nickname}</h3>
-          </div>
-          <hr />
-          <div class="footer">
-            <div class="parent-info">
-              <span>${student.parentName}</span>
-              <span>${student.parentPhone}</span>
-            </div>
-            <div class="category">
-              ${category}
-            </div>
-          </div>
-
-        </div>
-      </body>
-    </html>
-
-  `;
-
-  // This method avoids pop-ups by using a hidden iframe.
+// --- 1. Desktop Printing (Laptops) ---
+function printNameTagDesktop(student: Student, category: string, content: string) {
   const iframe = document.createElement('iframe');
   iframe.style.position = 'absolute';
   iframe.style.width = '0';
@@ -339,19 +245,90 @@ export function printNameTag(student: Student) {
   iframe.style.border = '0';
   document.body.appendChild(iframe);
 
-  const doc = iframe.contentWindow?.document;
+  const doc = iframe.contentDocument;
   if (doc) {
     doc.open();
     doc.write(content);
     doc.close();
-    iframe.contentWindow?.focus();
-    iframe.contentWindow?.print();
+    
+    // This 'onload' is the key to making it work reliably
+    iframe.onload = function() {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      
+      setTimeout(() => {
+        if (document.body.contains(iframe)) {
+          document.body.removeChild(iframe);
+        }
+      }, 1000);
+    };
   }
+}
 
-  // Clean up the iframe after a delay
-  setTimeout(() => {
-    if (document.body.contains(iframe)) {
-      document.body.removeChild(iframe);
-    }
-  }, 1000);
+// --- 2. Tablet & Mobile Printing ---
+function printNameTagTablet(student: Student, category: string, content: string) {
+  const printWindow = window.open('', '_blank');
+  
+  if (printWindow) {
+    printWindow.document.write(content);
+    printWindow.document.close();
+    printWindow.focus();
+    // Use onload here as well for reliability
+    printWindow.onload = () => {
+        printWindow.print();
+        // Automatically close the tab after printing
+        setTimeout(() => printWindow.close(), 500);
+    };
+  } else {
+    alert("Please allow pop-ups for this site to enable printing on tablets.");
+  }
+}
+
+// --- 3. Main Print Dispatcher ---
+export function printNameTag(student: Student) {
+  const age = calculateAge(student.dateOfBirth);
+  const category = getCategory(age);
+
+  // Define the printable content once
+  const content = `
+    <html>
+      <head>
+        <title>Name Tag - ${student.nickname}</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;800&display=swap" rel="stylesheet">
+        <style>
+          @page { size: 90mm 38mm; margin: 0; }
+          body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; width: 90mm; height: 38mm; }
+          .tag { width: 100%; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2mm 4mm; }
+          .nickname { font-size: 28pt; font-weight: 800; text-align: center; line-height: 1.1; flex-grow: 1; display: flex; align-items: center; }
+          .line { width: 100%; border-top: 1.5px solid black; margin: 2mm 0; }
+          .footer { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; font-size: 9pt; }
+          .parent-info { text-align: left; line-height: 1.2; }
+          .category { font-weight: 700; font-size: 11pt; }
+        </style>
+      </head>
+      <body>
+        <div class="tag">
+          <div class="nickname">${student.nickname}</div>
+          <div class="line"></div>
+          <div class="footer">
+            <div class="parent-info">
+              <div>${student.parentName}</div>
+              <div>${student.parentPhone}</div>
+            </div>
+            <div class="category">${category}</div>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  // Detect if the device is a tablet/mobile
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isTabletOrMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+
+  if (isTabletOrMobile) {
+    printNameTagTablet(student, category, content);
+  } else {
+    printNameTagDesktop(student, category, content);
+  }
 }
