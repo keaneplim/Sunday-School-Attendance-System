@@ -265,8 +265,9 @@ function printNameTagDesktop(student: Student, category: string, content: string
   }
 }
 
+// from project/src/utils/database.ts
+
 // --- 2. Tablet & Mobile Printing ---
-// This opens a new tab and requires a user tap to print, which is essential for mobile browsers.
 function printNameTagTablet(content: string) {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
@@ -283,18 +284,22 @@ function printNameTagTablet(content: string) {
                 <style>
                     body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; background-color: #f0f0f0; }
                     .print-button { font-size: 24px; padding: 20px 40px; cursor: pointer; border: none; border-radius: 8px; background-color: #007bff; color: white; }
-                    .print-area { display: none; } /* The actual name tag content is hidden */
+                    .print-area { display: none; }
                 </style>
             </head>
             <body>
                 <div class="print-area">${content}</div>
+                
+                // --- THIS IS THE BUTTON THE USER TAPS ---
                 <button id="printBtn" class="print-button">Tap to Print</button>
+                
                 <script>
-                    // When the user taps the button, trigger the print dialog.
+                    // --- THIS SCRIPT ATTACHES THE PRINT COMMAND TO THE BUTTON TAP ---
                     document.getElementById('printBtn').addEventListener('click', () => {
                         window.print();
                     });
-                    // After printing (or canceling), close this temporary tab.
+
+                    // This script closes the window automatically after printing
                     window.addEventListener('afterprint', () => {
                         window.close();
                     });
