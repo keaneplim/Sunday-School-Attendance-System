@@ -266,22 +266,46 @@ function printNameTagDesktop(student: Student, category: string, content: string
 }
 
 // --- 2. Tablet & Mobile Printing ---
-function printNameTagTablet(student: Student, category: string, content: string) {
-  const printWindow = window.open('', '_blank');
-  
-  if (printWindow) {
-    printWindow.document.write(content);
+// This opens a new tab and requires a user tap to print, which is essential for mobile browsers.
+function printNameTagTablet(content: string) {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+        alert("Pop-up was blocked. Please allow pop-ups for this site to print.");
+        return;
+    }
+
+    // This creates a simple page with just a print button.
+    const tabletContent = `
+        <html>
+            <head>
+                <title>Print Name Tag</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; background-color: #f0f0f0; }
+                    .print-button { font-size: 24px; padding: 20px 40px; cursor: pointer; border: none; border-radius: 8px; background-color: #007bff; color: white; }
+                    .print-area { display: none; } /* The actual name tag content is hidden */
+                </style>
+            </head>
+            <body>
+                <div class="print-area">${content}</div>
+                <button id="printBtn" class="print-button">Tap to Print</button>
+                <script>
+                    // When the user taps the button, trigger the print dialog.
+                    document.getElementById('printBtn').addEventListener('click', () => {
+                        window.print();
+                    });
+                    // After printing (or canceling), close this temporary tab.
+                    window.addEventListener('afterprint', () => {
+                        window.close();
+                    });
+                <\/script>
+            </body>
+        </html>
+    `;
+
+    printWindow.document.write(tabletContent);
     printWindow.document.close();
     printWindow.focus();
-    // Use onload here as well for reliability
-    printWindow.onload = () => {
-        printWindow.print();
-        // Automatically close the tab after printing
-        setTimeout(() => printWindow.close(), 500);
-    };
-  } else {
-    alert("Please allow pop-ups for this site to enable printing on tablets.");
-  }
 }
 
 // --- 3. Main Print Dispatcher ---
