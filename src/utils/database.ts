@@ -247,7 +247,7 @@ export function printNameTag(student: Student) {
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
         <style>
           @page {
-            size: 90mm 38mm;
+            size: 90mm 38mm landscape;
             margin: 0;
           }
           body {
