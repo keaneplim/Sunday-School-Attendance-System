@@ -250,23 +250,25 @@ export function printNameTag(student: Student) {
             size: 90mm 38mm landscape;
             margin: 0;
           }
-          body {
+          body, html {
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
+            overflow: hidden; /* Prevents accidental scrollbars */
           }
           .tag {
             width: 100%;
             height: 100%;
             box-sizing: border-box;
+            padding: 2mm;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
-            padding-top: -5px;
           }
+          
           .main-info {
             text-align: center;
           }
@@ -276,26 +278,22 @@ export function printNameTag(student: Student) {
             font-weight: bold;
             margin: 0;
             padding: 0;
-
+            line-height: 1; /* Tighter line spacing */
           }
+          
           .category {
-
-            position: absolute;
-            bottom: 35px;
-            right: 5px;
             text-align: right;
-            font-size: 15pt;
+            font-size: 16pt; /* Made category slightly larger */
+            font-weight: 600;
             color: #4b5563;
           }
+          
           .parent-info {
-
-            position: absolute;
-            bottom: 30px;
-            left: 5px;
             text-align: left;
             font-size: 10pt;
             color: #4b5563;
           }
+          
           .parent-info span {
             display: block;
           }
@@ -304,7 +302,16 @@ export function printNameTag(student: Student) {
             width: 100%;
             border: none;
             border-top: 2px solid black;
-            margin: 8px 0;
+            margin: 1mm 0;
+          }
+
+            /* --- Footer Section --- */
+          .footer {
+            width: 100%;
+            /* 3. Replaced absolute positioning with Flexbox */
+            display: flex;
+            justify-content: space-between; /* Pushes parent info left, category right */
+            align-items: flex-end; /* Aligns them at the bottom */
           }
 
         </style>
