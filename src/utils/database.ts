@@ -1,14 +1,8 @@
 import { Student, AttendanceRecord } from '../types';
 import { differenceInYears, format } from 'date-fns';
-import { APP_VERSION } from '../constants/version';
-
 
 const API_URL = import.meta.env.VITE_API_URL;
-const APP_VERSION = "2.1.5"; 
 
-export function getAppVersion(): string {
-  return APP_VERSION;
-}
 
 // This function is for the initial login (Step 1)
 export async function login(password: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
