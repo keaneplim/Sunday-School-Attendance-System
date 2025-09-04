@@ -272,7 +272,7 @@ export function printNameTag(student: Student) {
           }
 
           h3 {
-            font-size: 26pt;
+            font-size: 46pt;
             font-weight: bold;
             margin: 0;
             padding: 0;
