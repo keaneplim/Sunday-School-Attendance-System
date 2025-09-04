@@ -1019,5 +1019,5 @@ export function handlePrintError(student: Student, error: Error) {
     Error: ${error.message}
   `;
 
-  }
+  
 }
