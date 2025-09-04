@@ -660,8 +660,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             font-size: 18px;
             color: #000;
             font-weight: bold;
-            margin-top: 1mm; /* Add this line to move down */
-
           }
           
           .tag-bottom {
@@ -757,7 +755,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           /* Print styles - Simplified for Android compatibility */
           @media print {
             body {
-              margin-top: 28mm;
+              margin-top: 30mm;
               padding: 0;
               background: white;
               font-family: Poppins, sans-serif;
@@ -788,7 +786,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             
             .tag-preview {
               width: 90mm;
-              height: 29mm;
+              height: 38mm;
               max-width: 90mm;
               margin: 0;
               padding: 3mm 5mm;
@@ -816,7 +814,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             .tag-right {
               font-size: 13pt;
               margin-left: 3mm;
-              margin-top: 1mm; /* Add this line to move down */
             }
             
             .tag-bottom {
@@ -829,7 +826,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
 
             @page {
-              size: 90mm 29mm;
+              size: 90mm 38mm;
               margin: 0;
             }
           }
