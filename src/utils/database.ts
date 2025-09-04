@@ -755,7 +755,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           /* Print styles - Simplified for Android compatibility */
           @media print {
             body {
-              margin-top: 45mm;
+              margin-top: 44mm;
               padding: 0;
               background: white;
               font-family: Poppins, sans-serif;
