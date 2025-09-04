@@ -600,10 +600,12 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           }
           
           hr {
-            width: 100%;
+            width: 60%;
             border: none;
             border-top: 2px solid black;
-            margin: 6px 0 8px 0;
+            margin: 3px 0 8px 0;
+            margin-left: auto;
+            margin-right: auto;
           }
           
           .info {
@@ -663,9 +665,10 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           .tag-bottom {
             display: flex;
             flex-direction: row;
-            justify-content: space-between;
-            align-items: flex-end;
-            flex: 1;
+            justify-content: center;       /* Centers the children horizontally */
+            align-items: flex-start;       /* Aligns them to the top */
+            gap: 150px;                     /* Adds space between left and right (adjust as needed) */
+            margin-top: 3px;               /* Moves the pair right under the line */
           }
           
           .buttons {
@@ -773,10 +776,12 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
             
             hr {
-              width: 100%;
+              width: 60%;
               border: none;
               border-top: 2px solid black;
-              margin: 6px 0 8px 0;
+              margin: 3px 0 3px 0;
+              margin-left: auto;
+              margin-right: auto;
             }
             
             .tag-preview {
@@ -792,7 +797,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
             
             .tag-left {
-              font-size: 12pt;
+              font-size: 11pt;
               margin-right: 3mm;
             }
             
@@ -801,12 +806,23 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
             
             .tag-name {
-              font-size: 24pt;
+              font-size: 18pt;
+              margin-bottom: 0; /* reduce space below the name */
+
             }
             
             .tag-right {
-              font-size: 16pt;
+              font-size: 13pt;
               margin-left: 3mm;
+            }
+            
+            .tag-bottom {
+              display: flex;
+              flex-direction: row;
+              justify-content: center;       /* Centers the children horizontally */
+              align-items: flex-start;       /* Aligns them to the top */
+              gap: 150px;                     /* Adds space between left and right (adjust as needed) */
+              margin-top: 3px;               /* Moves the pair right under the line */
             }
 
             @page {
