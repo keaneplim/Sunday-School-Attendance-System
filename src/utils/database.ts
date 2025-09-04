@@ -191,7 +191,6 @@ function printNameTagDesktop(student: Student, category: string) {
             align-items: center;
             justify-content: space-between;
             padding: 2mm 4mm;
-            border: 1px solid #000;
             position: relative;
             box-sizing: border-box;
           }
@@ -600,6 +599,13 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             color: #000;
           }
           
+          hr {
+            width: 100%;
+            border: none;
+            border-top: 2px solid black;
+            margin: 6px 0 8px 0;
+          }
+          
           .info {
             background: #f8f9fa;
             padding: 15px;
@@ -624,48 +630,42 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           }
           
           .tag-preview {
-            width: 100%;
-            max-width: 450px;
-            height: 140px;
-            border: 3px solid #000;
-            margin: 25px auto;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
             padding: 15px 25px;
-            background: white;
-            box-sizing: border-box;
-            position: relative;
+            height: 140px;
           }
           
           .tag-left {
-            flex: 0 0 auto;
-            font-size: 12px;
+            text-align: left;
+            font-size: 14px;
             color: #000;
-            line-height: 1.4;
-            margin-right: 15px;
           }
           
-          .tag-center {
-            flex: 1;
-            text-align: center;
-            padding: 0 20px;
-          }
           
           .tag-name {
-            font-size: 24px;
+            text-align: center;
+            font-size: 34px;
             font-weight: bold;
             color: #000;
-            word-wrap: break-word;
-            max-width: 100%;
+            margin-bottom: 2px;
           }
           
           .tag-right {
-            flex: 0 0 auto;
-            font-size: 16px;
+            text-align: right;
+            font-size: 18px;
             color: #000;
             font-weight: bold;
-            margin-left: 15px;
+          }
+          
+          .tag-bottom {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex: 1;
           }
           
           .buttons {
@@ -772,6 +772,13 @@ function printNameTagAndroidFallback(student: Student, category: string) {
               display: none !important;
             }
             
+            hr {
+              width: 100%;
+              border: none;
+              border-top: 2px solid black;
+              margin: 6px 0 8px 0;
+            }
+            
             .tag-preview {
               width: 90mm;
               height: 29mm;
@@ -785,7 +792,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
             
             .tag-left {
-              font-size: 7pt;
+              font-size: 12pt;
               margin-right: 3mm;
             }
             
@@ -794,11 +801,11 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
             
             .tag-name {
-              font-size: 12pt;
+              font-size: 24pt;
             }
             
             .tag-right {
-              font-size: 8pt;
+              font-size: 16pt;
               margin-left: 3mm;
             }
 
@@ -835,15 +842,16 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           </div>
           
           <div class="tag-preview">
-            <div class="tag-left">
-              <div>${student.parentName || 'Parent'}</div>
-              <div>${student.parentPhone || 'Phone'}</div>
-            </div>
-            <div class="tag-center">
-              <div class="tag-name">${student.nickname}</div>
-            </div>
-            <div class="tag-right">
-              ${category}
+            <div class="tag-name">${student.nickname}</div>
+            <hr />
+            <div class="tag-bottom">
+              <div class="tag-left">
+                <div>${student.parentName || 'Parent'}</div>
+                <div>${student.parentPhone || 'Phone'}</div>
+              </div>
+              <div class="tag-right">
+                ${category}
+              </div>
             </div>
           </div>
           
