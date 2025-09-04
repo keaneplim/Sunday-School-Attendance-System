@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 // This function is for the initial login (Step 1)
 export async function login(password: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
   try {
-    const response = await fetch(${API_URL}/login, { // Calls the main login route
+    const response = await fetch(`${API_URL}/login`, { // Calls the main login route
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
@@ -24,7 +24,7 @@ export async function login(password: string): Promise<{ success: boolean; isAdm
 // This new function is for the admin-only login (Step 2)
 export async function adminLogin(password: string, authToken: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
   try {
-    const response = await fetch(${API_URL}/admin-login, { // Calls the new admin-only route
+    const response = await fetch(`${API_URL}/admin-login`, { // Calls the new admin-only route
       method: 'POST',
       headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export async function adminLogin(password: string, authToken: string): Promise<{
 
 export async function verifyClearDataPassword(password: string, adminSecret: string): Promise<boolean> {
   try {
-    const response = await fetch(${API_URL}/verify-clear-data-password, {
+    const response = await fetch(`${API_URL}/verify-clear-data-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ export async function verifyClearDataPassword(password: string, adminSecret: str
 
 export async function getStudents(): Promise<Student[]> {
   try {
-    const response = await fetch(${API_URL}/students);
+    const response = await fetch(`${API_URL}/students`);
     if (!response.ok) {
       throw new Error('Failed to fetch students');
     }
@@ -81,7 +81,7 @@ export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>, aut
   };
 
   try {
-    const response = await fetch(${API_URL}/students, {
+    const response = await fetch(`${API_URL}/students`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ export async function addStudent(student: Omit<Student, 'id' | 'createdAt'>, aut
 
 export async function updateStudent(id: string, updates: Partial<Student>, adminSecret: string): Promise<void> {
   try {
-    const response = await fetch(${API_URL}/students/${id}, {
+    const response = await fetch(`${API_URL}/students/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -124,7 +124,7 @@ export async function updateStudent(id: string, updates: Partial<Student>, admin
 
 export async function deleteStudent(id: string, adminSecret: string): Promise<void> {
   try {
-    const response = await fetch(${API_URL}/students/${id}, {
+    const response = await fetch(`${API_URL}/students/${id}`, {
       method: 'DELETE',
       headers: {
         'admin-secret': adminSecret,
@@ -143,7 +143,7 @@ export async function deleteStudent(id: string, adminSecret: string): Promise<vo
 
 export async function clearAllData(adminSecret: string): Promise<void> {
   try {
-    const response = await fetch(${API_URL}/clear-all-data, {
+    const response = await fetch(`${API_URL}/clear-all-data`, {
       method: 'DELETE',
       headers: {
         'admin-secret': adminSecret,
@@ -161,7 +161,7 @@ export async function clearAllData(adminSecret: string): Promise<void> {
 
 export async function getAttendanceRecords(): Promise<AttendanceRecord[]> {
   try {
-    const response = await fetch(${API_URL}/attendance);
+    const response = await fetch(`${API_URL}/attendance`);
     if (!response.ok) {
       throw new Error('Failed to fetch attendance records');
     }
@@ -182,7 +182,7 @@ export async function addAttendanceRecord(studentId: string, sessionTime: string
   };
 
   try {
-    const response = await fetch(${API_URL}/attendance, {
+    const response = await fetch(`${API_URL}/attendance`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
