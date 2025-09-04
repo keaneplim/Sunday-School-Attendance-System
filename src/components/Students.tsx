@@ -299,6 +299,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Student Management</h2>
+          <p className="text-[10px] text-gray-400 mt-1">v{globalThis.__APP_VERSION__}</p>
         </div>
         {/* The "Add Student" button is now ALWAYS visible */}
         <button onClick={() => setShowAddForm(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2">

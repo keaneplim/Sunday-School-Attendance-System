@@ -109,6 +109,7 @@ export const CheckIn: React.FC = () => {
         <p className="text-gray-600">
           {isSunday() ? "Search for a student and check them in for today's session" : "Check-in is only available on Sundays"}
         </p>
+        <p className="text-[10px] text-gray-400 mt-1">v{globalThis.__APP_VERSION__}</p>
       </div>
 
       {!isSunday() && (
