@@ -56,7 +56,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, loginError }) => {
             </button>
           </div>
         </form>
-        <div className="pt-2 text-center text-[10px] text-gray-400">Build v{globalThis.__APP_VERSION__}</div>
+        <div className="pt-2 text-center text-[10px] text-gray-400">V1.0.0.0</div>
       </div>
     </div>
   );
