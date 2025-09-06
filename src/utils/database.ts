@@ -822,7 +822,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
               flex-direction: row;
               justify-content: center;       /* Centers the children horizontally */
               align-items: flex-start;       /* Aligns them to the top */
-              gap: 150px;                     /* Adds space between left and right (adjust as needed) */
+              gap: 150px;                    /* Adds space between left and right (adjust as needed) */
               margin-top: 3px;               /* Moves the pair right under the line */
             }
 
