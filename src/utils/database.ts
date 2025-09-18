@@ -584,6 +584,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             padding: 20px;
             line-height: 1.4;
           }
+          @page { size: 90mm 29mm; margin: 0; }
           
           .container {
             max-width: 600px;
@@ -886,8 +887,8 @@ function printNameTagAndroidFallback(student: Student, category: string) {
         </div>
 
         <script>
-          // Auto-focus window for better user experience
-          window.focus();
+          // Auto-print and close; Chrome Android respects @page size for landscape labels
+          window.onload = () => { window.print(); window.onafterprint = () => window.close(); };
         </script>
      </body>
     </html>
