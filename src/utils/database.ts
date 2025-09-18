@@ -166,9 +166,9 @@ function printNameTagDesktop(student: Student, category: string) {
         <title>Name Tag - ${student.nickname}</title>
         <style>
           @page {
-            size: 90mm 29mm landscape;
+            size: 3.5in 1.1in landscape;
             margin: 0;
-            orientation: landscape;
+            
           }
           
           * {
@@ -181,8 +181,8 @@ function printNameTagDesktop(student: Student, category: string) {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            width: 90mm;
-            height: 29mm;
+            width: 3.5in;
+            height: 1.1in;
             background: white;
           }
           
@@ -491,9 +491,8 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
             }
 
             @page {
-              size: 90mm 29mm landscape;
+              size: 3.5in 1.1in landscape;
               margin: 0;
-              orientation: landscape;
             }
             
             * {
@@ -557,6 +556,8 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
 // --- IMPROVED PRINTING FUNCTIONS FOR ANDROID TABLETS ---
 
 // Android-specific printing method using popup window
+// Replace your printNameTagAndroidFallback function with this corrected version:
+
 function printNameTagAndroidFallback(student: Student, category: string) {
   const printWindow = window.open('', '_blank', 'width=800,height=600');
   
@@ -572,7 +573,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-        <title>Name Tag - Student Name</title>
+        <title>Name Tag - ${student.nickname}</title>
         <style>
           * {
             margin: 0;
@@ -586,7 +587,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             padding: 20px;
             line-height: 1.4;
           }
-          @page { size: 90mm 29mm landscape; margin: 0; orientation: landscape; }
           
           .container {
             max-width: 600px;
@@ -650,7 +650,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             color: #000;
           }
           
-          
           .tag-name {
             text-align: center;
             font-size: 34px;
@@ -702,7 +701,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             background: #1976D2;
             transform: translateY(-2px);
           }
-          
           
           .btn-close {
             background: #666;
@@ -756,13 +754,20 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
           }
           
-          /* Print styles - Fixed for your printer issue */
+          /* FIXED PRINT STYLES FOR ANDROID TABLETS */
           @media print {
+            @page {
+              size: 3.5in 1.1in landscape;
+              margin: 0;
+            }
+            
             body {
               padding: 0;
               background: white;
               font-family: Poppins, sans-serif;
               margin: 0;
+              width: 3.5in;
+              height: 1.1in;
             }
             
             .container {
@@ -770,6 +775,9 @@ function printNameTagAndroidFallback(student: Student, category: string) {
               max-width: none;
               padding: 0;
               background: white;
+              margin: 0;
+              width: 3.5in;
+              height: 1.1in;
             }
             
             .header,
@@ -780,59 +788,53 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
             
             hr {
-              width: 100%;
-              border: none;
-              border-top: 2px solid black;
-              margin: 4px 0 4px 0;
-              margin-left: auto;
-              margin-right: auto;
+              display: none !important;
             }
             
             .tag-preview {
-              width: 90mm;
-              height: 28mm; /* Keep the actual label height */
-              max-width: 90mm;
+              width: 3.5in;
+              height: 1.1in;
+              max-width: 3.5in;
               margin: 0;
-              padding: 3mm 5mm;
+              padding: 0.08in 0.12in;
               page-break-inside: avoid;
-              /* Use absolute positioning to push content down */
               position: absolute;
-              top: 0mm; /* This pushes the content down by 10mm */
+              top: 0;
               left: 0;
-            }
-            
-            .tag-left {
-              font-size: 11pt;
-              margin-right: 3mm;
-            }
-            
-            .tag-center {
-              padding: 0 2mm;
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              align-items: center;
             }
             
             .tag-name {
-              font-size: 18pt;
+              font-size: 14pt;
               margin-bottom: 0;
-            }
-            
-            .tag-right {
-              font-size: 13pt;
-              margin-left: 3mm;
+              text-align: center;
+              flex: 1;
+              padding: 0 0.1in;
             }
             
             .tag-bottom {
-              display: flex;
-              flex-direction: row;
-              justify-content: center;
-              align-items: flex-start;
-              gap: 80px; /* Reduced from 150px to fit better on the label */
-              margin-top: 3px;
+              display: contents;
             }
-
-            @page {
-              size: 90mm 29mm landscape; /* Set to what the printer detects */
-              margin: 0;
-              orientation: landscape;
+            
+            .tag-left {
+              font-size: 8pt;
+              text-align: left;
+              flex: 0 0 0.8in;
+            }
+            
+            .tag-right {
+              font-size: 10pt;
+              text-align: right;
+              flex: 0 0 0.6in;
+            }
+            
+            * {
+              -webkit-print-color-adjust: exact !important;
+              color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
           }
         </style>
@@ -840,7 +842,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
       <body>
         <div class="container">
           <div class="header">
-            <h2>📋 Name Tag Ready</h2>
+            <h2>Name Tag Ready</h2>
           </div>
           
           <div class="info">
@@ -877,38 +879,36 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           </div>
           
           <div class="buttons">
-            <button class="btn btn-print" onclick="window.print()">🖨 Print Tag</button>
-            <button class="btn btn-close" onclick="window.close()">✖ Close</button>
+            <button class="btn btn-print" onclick="window.print()">Print Tag</button>
+            <button class="btn btn-close" onclick="window.close()">Close</button>
           </div>
           
           <div class="help-text">
-            <strong>💡 Printing Tips:</strong><br>
-            • Make sure your printer is set to 90mm x 29mm label size<br>
-            • If direct printing fails, use "Download Image" and print from gallery<br>
-            • For best results, use Chrome browser on Android
+            <strong>Printing Tips:</strong><br>
+            • Paper should auto-set to landscape orientation<br>
+            • Make sure Brother QL-820NWB is selected<br>
+            • If orientation isn't correct, manually select landscape
           </div>
         </div>
 
         <script>
-          // Try to lock orientation
-          function tryLockLandscape() {
-            if (window.screen && window.screen.orientation) {
-              try {
-                window.screen.orientation.lock('landscape').catch(() => {
-                  console.log('Could not lock orientation');
-                });
-              } catch (e) {
-                console.log('Orientation lock not supported');
-              }
-            }
-          }
-          window.onload = () => {
-            tryLockLandscape();
-            setTimeout(() => { window.print(); }, 200);
+          // REMOVED screen orientation code - doesn't affect print dialog
+          // Auto-print after content loads
+          window.onload = function() {
+            // Small delay to ensure CSS is applied
+            setTimeout(function() {
+              window.print();
+            }, 200);
           };
-          window.onafterprint = () => window.close();
+          
+          // Close window after printing
+          window.onafterprint = function() {
+            window.close();
+          };
+          
+          window.focus();
         </script>
-     </body>
+      </body>
     </html>
   `;
 
@@ -958,23 +958,20 @@ function printNameTagMobile(student: Student, category: string) {
           <div class="print-right">${category}</div>
         </div>
         <script>
-          // Try to lock orientation before printing
-          function tryLockLandscape() {
-            if (window.screen && window.screen.orientation) {
-              try {
-                window.screen.orientation.lock('landscape').catch(() => {
-                  console.log('Could not lock orientation');
-                });
-              } catch (e) {
-                console.log('Orientation lock not supported');
-              }
-            }
-          }
-          window.onload = () => {
-            tryLockLandscape();
-            setTimeout(() => { window.print(); }, 200);
+
+          window.onload = function() {
+            // Small delay to ensure CSS is applied
+            setTimeout(function() {
+              window.print();
+            }, 200);
           };
-          window.onafterprint = () => window.close();
+          
+          // Close window after printing
+          window.onafterprint = function() {
+            window.close();
+          };
+          
+          window.focus();
         </script>
       </body>
     </html>
@@ -982,6 +979,8 @@ function printNameTagMobile(student: Student, category: string) {
 
   printWindow.document.write(content);
   printWindow.document.close();
+  printWindow.focus();
+
 }
 
 
