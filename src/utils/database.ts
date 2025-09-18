@@ -570,7 +570,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
-        <title>Name Tag - ${student.nickname}</title>
+        <title>Name Tag - Student Name</title>
         <style>
           * {
             margin: 0;
@@ -666,10 +666,10 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           .tag-bottom {
             display: flex;
             flex-direction: row;
-            justify-content: center;       /* Centers the children horizontally */
-            align-items: flex-start;       /* Aligns them to the top */
-            gap: 150px;                     /* Adds space between left and right (adjust as needed) */
-            margin-top: 3px;               /* Moves the pair right under the line */
+            justify-content: center;
+            align-items: flex-start;
+            gap: 150px;
+            margin-top: 3px;
           }
           
           .buttons {
@@ -753,13 +753,13 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
           }
           
-          /* Print styles - Simplified for Android compatibility */
+          /* Print styles - Fixed for your printer issue */
           @media print {
             body {
-              margin-top: 20mm;
               padding: 0;
               background: white;
               font-family: Poppins, sans-serif;
+              margin: 0;
             }
             
             .container {
@@ -787,13 +787,14 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             
             .tag-preview {
               width: 90mm;
-              height: 38mm;
+              height: 28mm; /* Keep the actual label height */
               max-width: 90mm;
               margin: 0;
               padding: 3mm 5mm;
               page-break-inside: avoid;
+              /* Use absolute positioning to push content down */
               position: absolute;
-              top: 0;
+              top: 0mm; /* This pushes the content down by 10mm */
               left: 0;
             }
             
@@ -808,8 +809,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             
             .tag-name {
               font-size: 18pt;
-              margin-bottom: 0; /* reduce space below the name */
-
+              margin-bottom: 0;
             }
             
             .tag-right {
@@ -820,14 +820,14 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             .tag-bottom {
               display: flex;
               flex-direction: row;
-              justify-content: center;       /* Centers the children horizontally */
-              align-items: flex-start;       /* Aligns them to the top */
-              gap: 150px;                    /* Adds space between left and right (adjust as needed) */
-              margin-top: 3px;               /* Moves the pair right under the line */
+              justify-content: center;
+              align-items: flex-start;
+              gap: 80px; /* Reduced from 150px to fit better on the label */
+              margin-top: 3px;
             }
 
             @page {
-              size: 90mm 38mm;
+              size: 90mm 28mm; /* Set to what the printer detects */
               margin: 0;
             }
           }
@@ -842,39 +842,39 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           <div class="info">
             <div class="info-row">
               <span class="info-label">Student:</span>
-              <span class="info-value">${student.nickname}</span>
+              <span class="info-value">Student Name</span>
             </div>
             <div class="info-row">
               <span class="info-label">Category:</span>
-              <span class="info-value">${category}</span>
+              <span class="info-value">Category Name</span>
             </div>
             <div class="info-row">
               <span class="info-label">Parent:</span>
-              <span class="info-value">${student.parentName || 'Not specified'}</span>
+              <span class="info-value">Parent Name</span>
             </div>
             <div class="info-row">
               <span class="info-label">Phone:</span>
-              <span class="info-value">${student.parentPhone || 'Not specified'}</span>
+              <span class="info-value">123-456-7890</span>
             </div>
           </div>
           
           <div class="tag-preview">
-            <div class="tag-name">${student.nickname}</div>
+            <div class="tag-name">Brother</div>
             <hr />
             <div class="tag-bottom">
               <div class="tag-left">
-                <div>${student.parentName || 'Parent'}</div>
-                <div>${student.parentPhone || 'Phone'}</div>
+                <div>Charlie Brown</div>
+                <div>1234567890</div>
               </div>
               <div class="tag-right">
-                ${category}
+                Love
               </div>
             </div>
           </div>
           
           <div class="buttons">
-            <button class="btn btn-print" onclick="window.print()">🖨️ Print Tag</button>
-            <button class="btn btn-close" onclick="window.close()">✖️ Close</button>
+            <button class="btn btn-print" onclick="window.print()">🖨 Print Tag</button>
+            <button class="btn btn-close" onclick="window.close()">✖ Close</button>
           </div>
           
           <div class="help-text">
@@ -886,12 +886,10 @@ function printNameTagAndroidFallback(student: Student, category: string) {
         </div>
 
         <script>
-          
-
           // Auto-focus window for better user experience
           window.focus();
         </script>
-      </body>
+     </body>
     </html>
   `;
 
