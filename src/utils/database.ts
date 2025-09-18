@@ -3,6 +3,7 @@ import { differenceInYears, format } from 'date-fns';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+
 // This function is for the initial login (Step 1)
 export async function login(password: string): Promise<{ success: boolean; isAdmin: boolean; secret?: string }> {
   const response = await fetch(`${API_URL}/login`, { // Calls the main login route
@@ -165,8 +166,9 @@ function printNameTagDesktop(student: Student, category: string) {
         <title>Name Tag - ${student.nickname}</title>
         <style>
           @page {
-            size: 90mm 29mm;
+            size: 3.5in 1.1in landscape;
             margin: 0;
+            
           }
           
           * {
@@ -179,8 +181,8 @@ function printNameTagDesktop(student: Student, category: string) {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            width: 90mm;
-            height: 29mm;
+            width: 3.5in;
+            height: 1.1in;
             background: white;
           }
           
@@ -489,7 +491,7 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
             }
 
             @page {
-              size: 90mm 29mm;
+              size: 3.5in 1.1in landscape;
               margin: 0;
             }
             
@@ -554,6 +556,8 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
 // --- IMPROVED PRINTING FUNCTIONS FOR ANDROID TABLETS ---
 
 // Android-specific printing method using popup window
+// Replace your printNameTagAndroidFallback function with this corrected version:
+
 function printNameTagAndroidFallback(student: Student, category: string) {
   const printWindow = window.open('', '_blank', 'width=800,height=600');
   
@@ -646,7 +650,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             color: #000;
           }
           
-          
           .tag-name {
             text-align: center;
             font-size: 34px;
@@ -665,10 +668,10 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           .tag-bottom {
             display: flex;
             flex-direction: row;
-            justify-content: center;       /* Centers the children horizontally */
-            align-items: flex-start;       /* Aligns them to the top */
-            gap: 150px;                     /* Adds space between left and right (adjust as needed) */
-            margin-top: 3px;               /* Moves the pair right under the line */
+            justify-content: center;
+            align-items: flex-start;
+            gap: 150px;
+            margin-top: 3px;
           }
           
           .buttons {
@@ -698,7 +701,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             background: #1976D2;
             transform: translateY(-2px);
           }
-          
           
           .btn-close {
             background: #666;
@@ -752,13 +754,20 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
           }
           
-          /* Print styles - Simplified for Android compatibility */
+          /* FIXED PRINT STYLES FOR ANDROID TABLETS */
           @media print {
+            @page {
+              size: 3.5in 1.1in landscape;
+              margin: 0;
+            }
+            
             body {
-              margin-top: 20mm;
               padding: 0;
               background: white;
               font-family: Poppins, sans-serif;
+              margin: 0;
+              width: 3.5in;
+              height: 1.1in;
             }
             
             .container {
@@ -766,6 +775,9 @@ function printNameTagAndroidFallback(student: Student, category: string) {
               max-width: none;
               padding: 0;
               background: white;
+              margin: 0;
+              width: 3.5in;
+              height: 1.1in;
             }
             
             .header,
@@ -776,58 +788,53 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
             
             hr {
-              width: 100%;
-              border: none;
-              border-top: 2px solid black;
-              margin: 4px 0 4px 0;
-              margin-left: auto;
-              margin-right: auto;
+              display: none !important;
             }
             
             .tag-preview {
-              width: 90mm;
-              height: 38mm;
-              max-width: 90mm;
+              width: 3.5in;
+              height: 1.1in;
+              max-width: 3.5in;
               margin: 0;
-              padding: 3mm 5mm;
+              padding: 0.08in 0.12in;
               page-break-inside: avoid;
               position: absolute;
               top: 0;
               left: 0;
-            }
-            
-            .tag-left {
-              font-size: 11pt;
-              margin-right: 3mm;
-            }
-            
-            .tag-center {
-              padding: 0 2mm;
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              align-items: center;
             }
             
             .tag-name {
-              font-size: 18pt;
-              margin-bottom: 0; /* reduce space below the name */
-
-            }
-            
-            .tag-right {
-              font-size: 13pt;
-              margin-left: 3mm;
+              font-size: 14pt;
+              margin-bottom: 0;
+              text-align: center;
+              flex: 1;
+              padding: 0 0.1in;
             }
             
             .tag-bottom {
-              display: flex;
-              flex-direction: row;
-              justify-content: center;       /* Centers the children horizontally */
-              align-items: flex-start;       /* Aligns them to the top */
-              gap: 150px;                     /* Adds space between left and right (adjust as needed) */
-              margin-top: 3px;               /* Moves the pair right under the line */
+              display: contents;
             }
-
-            @page {
-              size: 90mm 38mm;
-              margin: 0;
+            
+            .tag-left {
+              font-size: 8pt;
+              text-align: left;
+              flex: 0 0 0.8in;
+            }
+            
+            .tag-right {
+              font-size: 10pt;
+              text-align: right;
+              flex: 0 0 0.6in;
+            }
+            
+            * {
+              -webkit-print-color-adjust: exact !important;
+              color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
           }
         </style>
@@ -835,7 +842,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
       <body>
         <div class="container">
           <div class="header">
-            <h2>📋 Name Tag Ready</h2>
+            <h2>Name Tag Ready</h2>
           </div>
           
           <div class="info">
@@ -849,11 +856,11 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             </div>
             <div class="info-row">
               <span class="info-label">Parent:</span>
-              <span class="info-value">${student.parentName || 'Not specified'}</span>
+              <span class="info-value">${student.parentName || 'Parent'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Phone:</span>
-              <span class="info-value">${student.parentPhone || 'Not specified'}</span>
+              <span class="info-value">${student.parentPhone || 'Phone'}</span>
             </div>
           </div>
           
@@ -872,22 +879,33 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           </div>
           
           <div class="buttons">
-            <button class="btn btn-print" onclick="window.print()">🖨️ Print Tag</button>
-            <button class="btn btn-close" onclick="window.close()">✖️ Close</button>
+            <button class="btn btn-print" onclick="window.print()">Print Tag</button>
+            <button class="btn btn-close" onclick="window.close()">Close</button>
           </div>
           
           <div class="help-text">
-            <strong>💡 Printing Tips:</strong><br>
-            • Make sure your printer is set to 90mm x 29mm label size<br>
-            • If direct printing fails, use "Download Image" and print from gallery<br>
-            • For best results, use Chrome browser on Android
+            <strong>Printing Tips:</strong><br>
+            • Paper should auto-set to landscape orientation<br>
+            • Make sure Brother QL-820NWB is selected<br>
+            • If orientation isn't correct, manually select landscape
           </div>
         </div>
 
         <script>
+          // REMOVED screen orientation code - doesn't affect print dialog
+          // Auto-print after content loads
+          window.onload = function() {
+            // Small delay to ensure CSS is applied
+            setTimeout(function() {
+              window.print();
+            }, 200);
+          };
           
-
-          // Auto-focus window for better user experience
+          // Close window after printing
+          window.onafterprint = function() {
+            window.close();
+          };
+          
           window.focus();
         </script>
       </body>
@@ -940,7 +958,20 @@ function printNameTagMobile(student: Student, category: string) {
           <div class="print-right">${category}</div>
         </div>
         <script>
-          window.onload = () => { window.print(); window.onafterprint = () => window.close(); };
+
+          window.onload = function() {
+            // Small delay to ensure CSS is applied
+            setTimeout(function() {
+              window.print();
+            }, 200);
+          };
+          
+          // Close window after printing
+          window.onafterprint = function() {
+            window.close();
+          };
+          
+          window.focus();
         </script>
       </body>
     </html>
@@ -948,6 +979,8 @@ function printNameTagMobile(student: Student, category: string) {
 
   printWindow.document.write(content);
   printWindow.document.close();
+  printWindow.focus();
+
 }
 
 
@@ -1045,3 +1078,5 @@ export function handlePrintError(student: Student, error: Error) {
 
   
 }
+
+// Trigger Preview again
