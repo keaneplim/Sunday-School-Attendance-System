@@ -843,32 +843,32 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           <div class="info">
             <div class="info-row">
               <span class="info-label">Student:</span>
-              <span class="info-value">Student Name</span>
+              <span class="info-value">${student.nickname}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Category:</span>
-              <span class="info-value">Category Name</span>
+              <span class="info-value">${category}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Parent:</span>
-              <span class="info-value">Parent Name</span>
+              <span class="info-value">${student.parentName || 'Parent'}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Phone:</span>
-              <span class="info-value">123-456-7890</span>
+              <span class="info-value">${student.parentPhone || 'Phone'}</span>
             </div>
           </div>
           
           <div class="tag-preview">
-            <div class="tag-name">Brother</div>
+            <div class="tag-name">{student.nickname}</div>
             <hr />
             <div class="tag-bottom">
               <div class="tag-left">
-                <div>Charlie Brown</div>
-                <div>1234567890</div>
+                <div>${student.parentName || 'Parent'}</div>
+                <div>${student.parentPhone || 'Phone'}</div>
               </div>
               <div class="tag-right">
-                Love
+                ${category}
               </div>
             </div>
           </div>
@@ -888,7 +888,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
 
         <script>
           // Auto-print and close; Chrome Android respects @page size for landscape labels
-          window.onload = () => { window.print(); window.onafterprint = () => window.close(); };
+          window.focus();
         </script>
      </body>
     </html>
