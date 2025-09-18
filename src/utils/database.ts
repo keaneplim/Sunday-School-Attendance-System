@@ -166,8 +166,9 @@ function printNameTagDesktop(student: Student, category: string) {
         <title>Name Tag - ${student.nickname}</title>
         <style>
           @page {
-            size: 90mm 29mm;
+            size: 90mm 29mm landscape;
             margin: 0;
+            orientation: landscape;
           }
           
           * {
@@ -490,8 +491,9 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
             }
 
             @page {
-              size: 90mm 29mm;
+              size: 90mm 29mm landscape;
               margin: 0;
+              orientation: landscape;
             }
             
             * {
@@ -584,7 +586,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             padding: 20px;
             line-height: 1.4;
           }
-          @page { size: 90mm 29mm; margin: 0; }
+          @page { size: 90mm 29mm landscape; margin: 0; orientation: landscape; }
           
           .container {
             max-width: 600px;
@@ -828,8 +830,9 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
 
             @page {
-              size: 90mm 28mm; /* Set to what the printer detects */
+              size: 90mm 29mm landscape; /* Set to what the printer detects */
               margin: 0;
+              orientation: landscape;
             }
           }
         </style>
@@ -860,7 +863,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
           </div>
           
           <div class="tag-preview">
-            <div class="tag-name">{student.nickname}</div>
+            <div class="tag-name">${student.nickname}</div>
             <hr />
             <div class="tag-bottom">
               <div class="tag-left">
@@ -887,8 +890,23 @@ function printNameTagAndroidFallback(student: Student, category: string) {
         </div>
 
         <script>
-          // Auto-print and close; Chrome Android respects @page size for landscape labels
-          window.focus();
+          // Try to lock orientation
+          function tryLockLandscape() {
+            if (window.screen && window.screen.orientation) {
+              try {
+                window.screen.orientation.lock('landscape').catch(() => {
+                  console.log('Could not lock orientation');
+                });
+              } catch (e) {
+                console.log('Orientation lock not supported');
+              }
+            }
+          }
+          window.onload = () => {
+            tryLockLandscape();
+            setTimeout(() => { window.print(); }, 200);
+          };
+          window.onafterprint = () => window.close();
         </script>
      </body>
     </html>
@@ -940,7 +958,23 @@ function printNameTagMobile(student: Student, category: string) {
           <div class="print-right">${category}</div>
         </div>
         <script>
-          window.onload = () => { window.print(); window.onafterprint = () => window.close(); };
+          // Try to lock orientation before printing
+          function tryLockLandscape() {
+            if (window.screen && window.screen.orientation) {
+              try {
+                window.screen.orientation.lock('landscape').catch(() => {
+                  console.log('Could not lock orientation');
+                });
+              } catch (e) {
+                console.log('Orientation lock not supported');
+              }
+            }
+          }
+          window.onload = () => {
+            tryLockLandscape();
+            setTimeout(() => { window.print(); }, 200);
+          };
+          window.onafterprint = () => window.close();
         </script>
       </body>
     </html>
