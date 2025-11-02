@@ -166,7 +166,7 @@ function printNameTagDesktop(student: Student, category: string) {
         <title>Name Tag - ${student.nickname}</title>
         <style>
           @page {
-            size: 3.5in 1.1in landscape;
+            size: 90mm 29mm landscape;
             margin: 0;
             
           }
@@ -208,7 +208,7 @@ function printNameTagDesktop(student: Student, category: string) {
           }
           
           .center-section {
-            flex: 1;
+            flex: 1;  
             text-align: center;
             padding: 0 3mm;
             display: flex;
