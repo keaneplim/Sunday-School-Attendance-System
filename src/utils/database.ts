@@ -554,6 +554,61 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
 
 // --- IMPROVED PRINTING FUNCTIONS FOR ANDROID TABLETS ---
 
+// New direct printing method for Android
+function printNameTagAndroidDirect(student: Student, category: string) {
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+  if (!printWindow) {
+    alert('Please allow popups for printing to work.');
+    return;
+  }
+
+  const content = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Printing Name Tag - ${student.nickname}</title>
+        <style>
+          body { font-family: Poppins, sans-serif; margin:0; padding:0; }
+          .print-tag {
+            width: 90mm; height: 29mm;
+            display: grid; grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            padding: 2mm 4mm;
+            background: white;
+            box-sizing: border-box;
+          }
+          .print-left { font-size: 7pt; line-height: 1.2; }
+          .print-center { text-align: center; font-size: 26pt; font-weight: bold; }
+          .print-right { font-size: 8pt; font-weight: bold; text-align: right; }
+          @page { size: 90mm 29mm; margin: 0; }
+        </style>
+      </head>
+      <body>
+        <div class="print-tag">
+          <div class="print-left">
+            <div>${student.parentName || 'Parent'}</div>
+            <div>${student.parentPhone || 'Phone'}</div>
+          </div>
+          <div class="print-center">${student.nickname}</div>
+          <div class="print-right">${category}</div>
+        </div>
+        <script>
+          window.onload = () => {
+            window.print();
+            window.onafterprint = () => window.close();
+          };
+        </script>
+      </body>
+    </html>
+  `;
+
+  printWindow.document.write(content);
+  printWindow.document.close();
+  printWindow.focus(); // Focus the new window to help trigger the print dialog
+}
+
 // Android-specific printing method using popup window
 function printNameTagAndroidFallback(student: Student, category: string) {
   const printWindow = window.open('', '_blank', 'width=800,height=600');
@@ -966,8 +1021,8 @@ export function printNameTag(student: Student) {
   const isDesktop = !isAndroid && !isIOS && !isTablet && !isMobile;
 
   if (isAndroid) {
-    // Android devices (both mobile and tablet) - use popup method
-    printNameTagAndroidFallback(student, category);
+    // Android devices (both mobile and tablet) - use the new direct method
+    printNameTagAndroidDirect(student, category);
   } else if (isIOS && isTablet) {
     // iPad - use mobile method
     printNameTagMobile(student, category);
