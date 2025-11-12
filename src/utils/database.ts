@@ -166,9 +166,8 @@ function printNameTagDesktop(student: Student, category: string) {
         <title>Name Tag - ${student.nickname}</title>
         <style>
           @page {
-            size: 90mm 29mm landscape;
+            size: 90mm 29mm;
             margin: 0;
-            
           }
           
           * {
@@ -181,8 +180,8 @@ function printNameTagDesktop(student: Student, category: string) {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            width: 3.5in;
-            height: 1.1in;
+            width: 90mm;
+            height: 29mm;
             background: white;
           }
           
@@ -208,7 +207,7 @@ function printNameTagDesktop(student: Student, category: string) {
           }
           
           .center-section {
-            flex: 1;  
+            flex: 1;
             text-align: center;
             padding: 0 3mm;
             display: flex;
@@ -434,8 +433,8 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
               margin: 0;
               padding: 0;
               background: white;
-              width: 3.5in;
-              height: 1.1in;
+              width: 90mm;
+              height: 29mm;
             }
             
             .container {
@@ -454,9 +453,9 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
             }
             
             .tag-preview {
-              width: 3.5in;
-              height: 1.1in;
-              max-width: 3.5in;
+              width: 90mm;
+              height: 29mm;
+              max-width: 90mm;
               margin: 0;
               border: 1px solid #000;
               padding: 2.5mm 4mm;
@@ -491,7 +490,7 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
             }
 
             @page {
-              size: 3.5in 1.1in landscape;
+              size: 90mm 29mm;
               margin: 0;
             }
             
@@ -539,7 +538,9 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
         <script>
           // Auto-focus for better printing
           window.focus();
-        
+          
+          // Optional: Auto-print after delay (uncomment if wanted)
+          // setTimeout(() => window.print(), 1500);
         </script>
       </body>
     </html>
@@ -554,8 +555,6 @@ function printNameTagDesktopAlternative(student: Student, category: string) {
 // --- IMPROVED PRINTING FUNCTIONS FOR ANDROID TABLETS ---
 
 // Android-specific printing method using popup window
-// Replace your printNameTagAndroidFallback function with this corrected version:
-
 function printNameTagAndroidFallback(student: Student, category: string) {
   const printWindow = window.open('', '_blank', 'width=800,height=600');
   
@@ -565,7 +564,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
   }
 
   const content = `
-<!DOCTYPE html>
+    <!DOCTYPE html>
     <html>
       <head>
         <meta charset="UTF-8">
@@ -585,7 +584,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             padding: 20px;
             line-height: 1.4;
           }
-          @page { size: 3.5in 1.1in landscape; margin: 0; orientation: landscape; }
           
           .container {
             max-width: 600px;
@@ -762,8 +760,6 @@ function printNameTagAndroidFallback(student: Student, category: string) {
               background: white;
               font-family: Poppins, sans-serif;
               margin: 0;
-              width: 3.5in;
-              height: 1.1in;
             }
             
             .container {
@@ -790,9 +786,9 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
             
             .tag-preview {
-              width: 3.5in;
-              height: 1.1in; /* Keep the actual label height */
-              max-width: 3.5in;
+              width: 90mm;
+              height: 28mm; /* Keep the actual label height */
+              max-width: 90mm;
               margin: 0;
               padding: 3mm 5mm;
               page-break-inside: avoid;
@@ -831,9 +827,8 @@ function printNameTagAndroidFallback(student: Student, category: string) {
             }
 
             @page {
-              size: 3.5in 1.1in landscape; /* Set to what the printer detects */
+              size: 90mm 28mm; /* Set to what the printer detects */
               margin: 0;
-              orientation: landscape;
             }
           }
         </style>
@@ -872,7 +867,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
                 <div>${student.parentPhone || 'Phone'}</div>
               </div>
               <div class="tag-right">
-                ${category}
+                Love
               </div>
             </div>
           </div>
@@ -891,11 +886,11 @@ function printNameTagAndroidFallback(student: Student, category: string) {
         </div>
 
         <script>
-          // Auto-print and close; Chrome Android respects @page size for landscape labels
+          // Auto-focus window for better user experience
           window.focus();
         </script>
-     </body>
-    </html>
+     </body>
+    </html>
   `;
 
   printWindow.document.write(content);
@@ -921,7 +916,7 @@ function printNameTagMobile(student: Student, category: string) {
         <style>
           body { font-family: Poppins, sans-serif; margin:0; padding:0; }
           .print-tag {
-            width: 3.5in; height: 1.1in;
+            width: 90mm; height: 29mm;
             display: grid; grid-template-columns: 1fr 2fr 1fr;
             align-items: center;
             padding: 2mm 4mm;
@@ -931,7 +926,7 @@ function printNameTagMobile(student: Student, category: string) {
           .print-left { font-size: 7pt; line-height: 1.2; }
           .print-center { text-align: center; font-size: 26pt; font-weight: bold; }
           .print-right { font-size: 8pt; font-weight: bold; text-align: right; }
-          @page { size:  3.5in 1.1in landscape; margin: 0; }
+          @page { size: 90mm 29mm; margin: 0; }
         </style>
       </head>
       <body>
@@ -943,8 +938,8 @@ function printNameTagMobile(student: Student, category: string) {
           <div class="print-center">${student.nickname}</div>
           <div class="print-right">${category}</div>
         </div>
-        <script>          
-          window.focus();
+        <script>
+          window.onload = () => { window.print(); window.onafterprint = () => window.close(); };
         </script>
       </body>
     </html>
@@ -952,8 +947,6 @@ function printNameTagMobile(student: Student, category: string) {
 
   printWindow.document.write(content);
   printWindow.document.close();
-  printWindow.focus();
-
 }
 
 
@@ -1052,5 +1045,4 @@ export function handlePrintError(student: Student, error: Error) {
   
 }
 
-// Trigger Preview again
 // Trigger Preview again
