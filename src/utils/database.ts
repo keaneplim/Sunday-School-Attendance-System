@@ -562,38 +562,122 @@ function printNameTagAndroidDirect(student: Student, category: string) {
     return;
   }
 
+
   const content = `
     <!DOCTYPE html>
     <html>
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
         <title>Printing Name Tag - ${student.nickname}</title>
         <style>
-          body { font-family: Poppins, sans-serif; margin:0; padding:0; }
-          .print-tag {
-            width: 90mm; height: 29mm;
-            display: grid; grid-template-columns: 1fr 2fr 1fr;
-            align-items: center;
-            padding: 2mm 4mm;
-            background: white;
+          * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
           }
-          .print-left { font-size: 7pt; line-height: 1.2; }
-          .print-center { text-align: center; font-size: 26pt; font-weight: bold; }
-          .print-right { font-size: 8pt; font-weight: bold; text-align: right; }
-          @page { size: 90mm 29mm; margin: 0; }
+
+          @media print {
+            body {
+              padding: 0;
+              background: white;
+              font-family: Poppins, sans-serif;
+              margin: 0;
+            }
+
+            .container {
+              box-shadow: none;
+              max-width: none;
+              padding: 0;
+              background: white;
+            }
+
+            .header{
+              display: none !important;
+            }
+
+            hr {
+              width: 100%;
+              border: none;
+              border-top: 2px solid black;
+              margin: 4px 0 4px 0;
+              margin-left: auto;
+              margin-right: auto;
+            }
+
+            .print-tag {
+              width: 90mm;
+              height: 28mm; /* Keep the actual label height */
+              max-width: 90mm;
+              margin: 0;
+              padding: 3mm 5mm;
+              page-break-inside: avoid;
+              /* Use absolute positioning to push content down */
+              position: absolute;
+              top: 0mm; /* This pushes the content down by 10mm */
+              left: 0;
+            }
+            
+            .print-left {
+              font-size: 11pt;
+              margin-right: 3mm;
+            }
+            
+            .print-center {
+              padding: 0 2mm;
+            }
+            
+            .print-name {
+              font-size: 18pt;
+              margin-bottom: 0;
+              text-align: center;
+              font-weight: bold;
+            }
+            
+            .print-right {
+              font-size: 13pt;
+              margin-left: 3mm;
+              font-weight: bold;
+            }
+            
+            .print-bottom {
+              display: flex;
+              flex-direction: row;
+              justify-content: center;
+              align-items: flex-start;
+              gap: 80px; /* Reduced from 150px to fit better on the label */
+              margin-top: 3px;
+            }
+
+            @page {
+              size: 90mm 28mm; /* Set to what the printer detects */
+              margin: 0;
+            }
+          }
+
         </style>
       </head>
       <body>
-        <div class="print-tag">
-          <div class="print-left">
-            <div>${student.parentName || 'Parent'}</div>
-            <div>${student.parentPhone || 'Phone'}</div>
+
+        <div class="container">
+
+          <div class="print-tag">
+            <div class="print-name">${student.nickname}</div>
+            <hr />
+            <div class="print-bottom">
+              <div class="print-left">
+                <div>${student.parentName || 'Parent'}</div>
+                <div>${student.parentPhone || 'Phone'}</div>
+              </div>
+              <div class="print-right">
+                ${category}
+              </div>
+            </div>
           </div>
-          <div class="print-center">${student.nickname}</div>
-          <div class="print-right">${category}</div>
         </div>
+
+
         <script>
           window.onload = () => {
             window.print();
@@ -1021,7 +1105,7 @@ export function printNameTag(student: Student) {
   const isDesktop = !isAndroid && !isIOS && !isTablet && !isMobile;
 
   if (isAndroid) {
-    // Android devices (both mobile and tablet) - use the new direct method
+    // Android devices (both mobile and tablet) - use popup method
     printNameTagAndroidDirect(student, category);
   } else if (isIOS && isTablet) {
     // iPad - use mobile method
