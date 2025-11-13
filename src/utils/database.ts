@@ -569,6 +569,7 @@ function printNameTagAndroidDirect(student: Student, category: string) {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
         <title>Printing Name Tag - ${student.nickname}</title>
         <style>
           * {
@@ -581,7 +582,7 @@ function printNameTagAndroidDirect(student: Student, category: string) {
             body {
               padding: 0;
               background: white;
-              font-family: Arial, sans-serif;
+              font-family: Poppins, sans-serif;
               margin: 0;
             }
 
@@ -678,10 +679,9 @@ function printNameTagAndroidDirect(student: Student, category: string) {
 
 
         <script>
-          window.onload = () => {
-            window.print();
-            window.onafterprint = () => window.close();
-          };
+          window.focus();
+          window.print();
+          window.onafterprint = () => window.close();
         </script>
       </body>
     </html>
