@@ -17,6 +17,21 @@ function App() {
   const [loginError, setLoginError] = useState('');
   const [showAdminLogin, setShowAdminLogin] = useState(false);
 
+  useEffect(() => {
+    const secret = localStorage.getItem('adminSecret');
+    const adminStatus = localStorage.getItem('isAdmin') === 'true';
+    if (secret) {
+      setIsAuthenticated(true);
+      setAdminSecret(secret);
+      setIsAdmin(adminStatus);
+      // Optionally, you could default to a view other than 'checkin' if logged in
+      // For example, if admin, go to dashboard
+      if (adminStatus) {
+        setCurrentView('dashboard');
+      }
+    }
+  }, []);
+
   // Initial login handler
   const handleLogin = async (password: string) => {
     const result = await apiLogin(password);
@@ -25,6 +40,10 @@ function App() {
       // This will now always be false on initial login
       setIsAdmin(result.isAdmin);
       setAdminSecret(result.secret || null);
+      if (result.secret) {
+        localStorage.setItem('adminSecret', result.secret);
+        localStorage.setItem('isAdmin', String(result.isAdmin));
+      }
       setLoginError('');
       setCurrentView('checkin');
     } else {
@@ -44,6 +63,10 @@ function App() {
       setIsAdmin(true);
       // The secret might be the same, but we update it just in case
       setAdminSecret(result.secret || null);
+      if (result.secret) {
+        localStorage.setItem('adminSecret', result.secret);
+        localStorage.setItem('isAdmin', 'true');
+      }
       setShowAdminLogin(false);
       setCurrentView('dashboard');
     } else {
@@ -55,6 +78,8 @@ function App() {
     setIsAuthenticated(false);
     setIsAdmin(false);
     setAdminSecret(null);
+    localStorage.removeItem('adminSecret');
+    localStorage.removeItem('isAdmin');
     setCurrentView('checkin');
   };
   

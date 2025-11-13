@@ -138,7 +138,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ adminSecret }) => {
             : "Today is not Sunday. The system is ready for the next Sunday School session."
           }
         </p>
-        <p className="text-[10px] text-gray-400 mt-1">V1.0.1.8</p>
+        <p className="text-[10px] text-gray-400 mt-1">V1.0.1.9</p>
       </div>
 
       {!isSunday() && (
