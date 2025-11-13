@@ -681,7 +681,7 @@ function printNameTagAndroidDirect(student: Student, category: string) {
         <script>
           window.focus();
           window.print();
-          window.onafterprint = () => window.close();
+          window.close();
         </script>
       </body>
     </html>
