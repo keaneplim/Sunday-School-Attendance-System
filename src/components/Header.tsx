@@ -38,7 +38,7 @@ import { Menu, X, LogIn, LogOut } from 'lucide-react';
               <p className="text-xs sm:text-sm text-gray-600">
                 Attendance
               </p>
-              <p className="text-[10px] text-gray-400 mt-1">V1.0.1.5</p>
+              <p className="text-[10px] text-gray-400 mt-1">V1.0.1.6</p>
             </div>
           </div>
 
