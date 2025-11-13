@@ -683,26 +683,23 @@ function printNameTagAndroidDirect(student: Student, category: string) {
           function doPrint() {
             try {
               window.focus();
-              window.print();
+              setTimeout(() => {
+                window.print();
+                // Don't auto-close on Android - let user close manually
+                // This prevents premature closing before print dialog appears
+              }, 100);
             } catch (e) {
               console.error('Print error:', e);
             }
           }
 
-          // Detect when print dialog is closed (user printed or cancelled)
-          window.addEventListener('afterprint', function() {
-            setTimeout(function() {
-              window.close();
-            }, 500);
-          });
-
           // Wait for fonts and images to load
           if (document.readyState === 'complete') {
-            setTimeout(doPrint, 500);
+            doPrint();
           } else {
-            window.addEventListener('load', function() {
+            window.addEventListener('load', () => {
               // Extra delay for font loading on Android
-              setTimeout(doPrint, 500);
+              setTimeout(doPrint, 300);
             });
           }
         </script>
@@ -1128,7 +1125,7 @@ export function printNameTag(student: Student) {
 
   if (isAndroid) {
     // Android devices (both mobile and tablet) - use popup method
-    printNameTagAndroidDirect(student, category);
+    printNameTagAndroidFallback(student, category);
   } else if (isIOS && isTablet) {
     // iPad - use mobile method
     printNameTagMobile(student, category);
