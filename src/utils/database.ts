@@ -679,9 +679,29 @@ function printNameTagAndroidDirect(student: Student, category: string) {
 
 
         <script>
-          window.focus();
-          window.print();
-          window.close();
+          // Wait for everything to load including fonts
+          function doPrint() {
+            try {
+              window.focus();
+              setTimeout(() => {
+                window.print();
+                // Don't auto-close on Android - let user close manually
+                // This prevents premature closing before print dialog appears
+              }, 100);
+            } catch (e) {
+              console.error('Print error:', e);
+            }
+          }
+
+          // Wait for fonts and images to load
+          if (document.readyState === 'complete') {
+            doPrint();
+          } else {
+            window.addEventListener('load', () => {
+              // Extra delay for font loading on Android
+              setTimeout(doPrint, 300);
+            });
+          }
         </script>
       </body>
     </html>
