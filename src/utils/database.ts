@@ -685,13 +685,23 @@ function printNameTagAndroidDirect(student: Student, category: string) {
               window.focus();
               setTimeout(() => {
                 window.print();
-                // Don't auto-close on Android - let user close manually
-                // This prevents premature closing before print dialog appears
+                // Close after print dialog is dismissed
+                window.close();
               }, 100);
             } catch (e) {
               console.error('Print error:', e);
             }
           }
+
+          // Detect when print dialog is closed (user printed or cancelled)
+          window.onafterprint = function() {
+            window.close();
+          };
+
+          // Fallback: Close if user navigates away without printing
+          window.onbeforeunload = function() {
+            window.close();
+          };
 
           // Wait for fonts and images to load
           if (document.readyState === 'complete') {
