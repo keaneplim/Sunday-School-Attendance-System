@@ -1105,7 +1105,7 @@ export function printNameTag(student: Student) {
 
   if (isAndroid) {
     // Android devices (both mobile and tablet) - use popup method
-    printNameTagAndroidDirect(student, category);
+    printNameTagAndroidFallback(student, category);
   } else if (isIOS && isTablet) {
     // iPad - use mobile method
     printNameTagMobile(student, category);
