@@ -679,32 +679,30 @@ function printNameTagAndroidDirect(student: Student, category: string) {
 
 
         <script>
-          // Detect when print dialog is closed (user printed or cancelled)
-          window.onafterprint = function() {
-            setTimeout(() => {
-              window.close();
-            }, 100);
-          };
-
           // Wait for everything to load including fonts
           function doPrint() {
             try {
               window.focus();
-              setTimeout(() => {
-                window.print();
-              }, 100);
+              window.print();
             } catch (e) {
               console.error('Print error:', e);
             }
           }
 
+          // Detect when print dialog is closed (user printed or cancelled)
+          window.addEventListener('afterprint', function() {
+            setTimeout(function() {
+              window.close();
+            }, 500);
+          });
+
           // Wait for fonts and images to load
           if (document.readyState === 'complete') {
-            doPrint();
+            setTimeout(doPrint, 500);
           } else {
-            window.addEventListener('load', () => {
+            window.addEventListener('load', function() {
               // Extra delay for font loading on Android
-              setTimeout(doPrint, 300);
+              setTimeout(doPrint, 500);
             });
           }
         </script>

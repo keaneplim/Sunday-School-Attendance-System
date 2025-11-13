@@ -139,7 +139,7 @@ export const Reports: React.FC = () => {
             Attendance Reports
           </h2>
           <p className="text-gray-600">Analyze attendance patterns and trends</p>
-          <p className="text-[10px] text-gray-400 mt-1">V1.0.1.6</p>
+          <p className="text-[10px] text-gray-400 mt-1">V1.0.1.7</p>
         </div>
         <button onClick={handlePrint} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2">
           <Download className="h-4 w-4" />
