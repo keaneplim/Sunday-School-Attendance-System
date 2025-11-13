@@ -17,7 +17,7 @@ function App() {
   const [loginError, setLoginError] = useState('');
   const [showAdminLogin, setShowAdminLogin] = useState(false);
 
-  useEffect(() => {
+  useEffect(() => {  
     const secret = localStorage.getItem('adminSecret');
     const adminStatus = localStorage.getItem('isAdmin') === 'true';
     if (secret) {
