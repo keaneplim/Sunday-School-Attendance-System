@@ -18,7 +18,7 @@ const StudentForm = ({
   resetForm: () => void;
   editingStudent: Student | null;
   formErrors: { firstName?: string; lastName?: string; nickname?: string; parentPhone?: string; };
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
 }) => (
   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
     <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -64,16 +64,39 @@ const StudentForm = ({
           {formErrors.lastName && <p className="mt-2 text-sm text-red-600">{formErrors.lastName}</p>}
         </div>
       </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label>
-        <input
-          type="date"
-          name="dateOfBirth"
-          required
-          value={formData.dateOfBirth}
-          onChange={handleInputChange}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label>
+          <input
+            type="date"
+            name="dateOfBirth"
+            required
+            value={formData.dateOfBirth}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Grade *</label>
+          <select
+            name="grade"
+            required
+            value={formData.grade}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Select Grade</option>
+            <option value="Belum Sekolah">Belum Sekolah</option>
+            <option value="TK">TK</option>
+            <option value="SD 1">SD 1</option>
+            <option value="SD 2">SD 2</option>
+            <option value="SD 3">SD 3</option>
+            <option value="SD 4">SD 4</option>
+            <option value="SD 5">SD 5</option>
+            <option value="SD 6">SD 6</option>
+            <option value="Teenager">Teenager</option>
+          </select>
+        </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -142,6 +165,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
     firstName: '',
     lastName: '',
     dateOfBirth: '',
+    grade: '',
     parentName: '',
     parentPhone: '',
     medicalNotes: '',
@@ -173,7 +197,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
       )
     : students;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
@@ -198,6 +222,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
       firstName: '',
       lastName: '',
       dateOfBirth: '',
+      grade: '',
       parentName: '',
       parentPhone: '',
       medicalNotes: '',
@@ -256,6 +281,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
       firstName: student.firstName ?? '',
       lastName: student.lastName ?? '',
       dateOfBirth: student.dateOfBirth ?? '',
+      grade: student.grade ?? '',
       parentName: student.parentName ?? '',
       parentPhone: student.parentPhone ?? '',
       medicalNotes: student.medicalNotes ?? '',
@@ -336,7 +362,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredStudents.map((student) => {
           const age = calculateAge(student.dateOfBirth);
-          const category = getCategory(age);
+          const category = getCategory(student.grade);
           return (
             <div key={student.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow flex flex-col">
               <div className="flex-grow">
@@ -349,7 +375,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
                       <h3 className="font-semibold text-base sm:text-lg text-gray-900">
                         {student.firstName} {student.lastName}
                       </h3>
-                      <p className="text-sm text-gray-600">{category}</p>
+                      <p className="text-sm text-gray-600">{category} • {student.grade}</p>
                     </div>
                   </div>
                 </div>

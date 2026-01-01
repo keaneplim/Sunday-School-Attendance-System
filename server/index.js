@@ -73,10 +73,10 @@ app.get('/api/students', async (req, res) => {
 });
 
 app.post('/api/students', checkAuth, async (req, res) => {
-    const { id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt } = req.body;
-    const sql = `INSERT INTO students (id, nickname, "firstName", "lastName", "dateOfBirth", "parentName", "parentPhone", "medicalNotes", "createdAt") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`;
+    const { id, nickname, firstName, lastName, dateOfBirth, grade, parentName, parentPhone, medicalNotes, createdAt } = req.body;
+    const sql = `INSERT INTO students (id, nickname, "firstName", "lastName", "dateOfBirth", grade, "parentName", "parentPhone", "medicalNotes", "createdAt") VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
     try {
-        await pool.query(sql, [id, nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, createdAt]);
+        await pool.query(sql, [id, nickname, firstName, lastName, dateOfBirth, grade, parentName, parentPhone, medicalNotes, createdAt]);
         res.json({ "message": "success", "data": req.body });
     } catch (err) {
         res.status(400).json({ "error": err.message });
@@ -84,10 +84,10 @@ app.post('/api/students', checkAuth, async (req, res) => {
 });
 
 app.put('/api/students/:id', checkAdmin, async (req, res) => {
-    const { nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes } = req.body;
-    const sql = `UPDATE students SET nickname = $1, "firstName" = $2, "lastName" = $3, "dateOfBirth" = $4, "parentName" = $5, "parentPhone" = $6, "medicalNotes" = $7 WHERE id = $8`;
+    const { nickname, firstName, lastName, dateOfBirth, grade, parentName, parentPhone, medicalNotes } = req.body;
+    const sql = `UPDATE students SET nickname = $1, "firstName" = $2, "lastName" = $3, "dateOfBirth" = $4, grade = $5, "parentName" = $6, "parentPhone" = $7, "medicalNotes" = $8 WHERE id = $9`;
     try {
-        await pool.query(sql, [nickname, firstName, lastName, dateOfBirth, parentName, parentPhone, medicalNotes, req.params.id]);
+        await pool.query(sql, [nickname, firstName, lastName, dateOfBirth, grade, parentName, parentPhone, medicalNotes, req.params.id]);
         res.json({ message: "success" });
     } catch (err) {
         res.status(400).json({ "error": err.message });

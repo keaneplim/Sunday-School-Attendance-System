@@ -125,10 +125,18 @@ export function calculateAge(dateOfBirth: string): number {
   return differenceInYears(new Date(), new Date(dateOfBirth));
 }
 
-export function getCategory(age: number): string {
-  if (age <= 2) return 'Love';
-  if (age <= 5) return 'Hope';
-  if (age <= 11) return 'Kindness';
+export function getCategory(grade: string): string {
+  if (!grade) return 'Unknown';
+  
+  // Kelas Love: Belum Sekolah - TK
+  if (grade === 'Belum Sekolah' || grade === 'Nursery' || grade === 'TK') return 'Love';
+  
+  // Kelas Hope: SD 1 - SD 3
+  if (['SD 1', 'SD 2', 'SD 3'].includes(grade)) return 'Hope';
+  
+  // Kelas Faith: SD 4 - SD 6
+  if (['SD 4', 'SD 5', 'SD 6'].includes(grade)) return 'Faith';
+  
   return 'Teenager';
 }
 
@@ -1025,7 +1033,7 @@ function printNameTagAndroidFallback(student: Student, category: string) {
                 <div>${student.parentPhone || 'Phone'}</div>
               </div>
               <div class="tag-right">
-                Love
+                ${category}
               </div>
             </div>
           </div>
@@ -1110,8 +1118,7 @@ function printNameTagMobile(student: Student, category: string) {
 
 // Main print function with improved device detection
 export function printNameTag(student: Student) {
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
+  const category = getCategory(student.grade);
 
   // Detailed device detection
   const userAgent = navigator.userAgent.toLowerCase();

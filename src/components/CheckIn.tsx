@@ -63,7 +63,7 @@ export const CheckIn: React.FC = () => {
 
   const NameTagPreview = ({ student }: { student: Student }) => {
     const age = calculateAge(student.dateOfBirth);
-    const category = getCategory(age);
+    const category = getCategory(student.grade);
     
     return (
       <div className="bg-white border-2 border-gray-300 rounded-lg p-4 w-80 mx-auto">
@@ -84,7 +84,7 @@ export const CheckIn: React.FC = () => {
 
   if (isCheckedIn && selectedStudent) {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
         <div className="text-center">
           <div className="mb-8">
             <div className="bg-green-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
@@ -103,7 +103,7 @@ export const CheckIn: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       <div className="mb-8">
         <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Student Check-in</h2>
         <p className="text-gray-600">
@@ -145,14 +145,14 @@ export const CheckIn: React.FC = () => {
             <p className="text-sm text-gray-600 mb-3">Found {searchResults.length} student(s)</p>
             {searchResults.map((student) => {
               const age = calculateAge(student.dateOfBirth);
-              const category = getCategory(age);
+              const category = getCategory(student.grade);
               return (
                 <div key={student.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">{student.firstName} {student.lastName}</h3>
-                        <p className="text-sm text-gray-600">Age {age} • {category} • Parent: {student.parentName}</p>
+                        <p className="text-sm text-gray-600">Grade: {student.grade} • Age {age} • {category} • Parent: {student.parentName}</p>
                         {student.medicalNotes && (
                           <div className="flex items-center text-red-600 text-sm mt-1">
                             <AlertTriangle className="h-4 w-4 mr-1" />

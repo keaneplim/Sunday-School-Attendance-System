@@ -100,8 +100,7 @@ export const Reports: React.FC = () => {
   const categoryBreakdown = filteredRecords.reduce((acc, record) => {
     const student = getStudentById(record.studentId);
     if (student) {
-      const age = calculateAge(student.dateOfBirth);
-      const category = getCategory(age);
+      const category = getCategory(student.grade);
       if (!acc[category]) acc[category] = 0;
       acc[category]++;
     }
@@ -281,7 +280,7 @@ export const Reports: React.FC = () => {
                                   {record.student ? `${record.student.firstName} ${record.student.lastName}` : 'Unknown Student'}
                               </td>
                               <td className="py-3 text-sm text-gray-600">
-                                  {record.student ? getCategory(calculateAge(record.student.dateOfBirth)) : 'N/A'}
+                                  {record.student ? getCategory(record.student.grade) : 'N/A'}
                               </td>
                               <td className="py-3 text-sm text-gray-600">
                                   {record.sessionTime === '09:30' ? '9:30 AM' : record.sessionTime === '11:00' ? '11:00 AM' : record.sessionTime === '14:00' ? '2:00 PM' : '4:00 PM'}

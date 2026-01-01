@@ -4,6 +4,7 @@ export interface Student {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
+  grade: string;
   parentName: string;
   parentPhone: string;
   medicalNotes?: string;
@@ -17,7 +18,7 @@ export interface AttendanceRecord {
   checkinTimestamp: string;
 }
 
-export type Category = 'Nursery' | 'Preschool' | 'Elementary' | 'Teenager';
+export type Category = 'Love' | 'Hope' | 'Faith' | 'Teenager';
 
 export type SessionTime = '09:30' | '11:00' | '14:00' | '16:00';
 
