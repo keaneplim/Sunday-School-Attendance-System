@@ -362,7 +362,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredStudents.map((student) => {
           const age = calculateAge(student.dateOfBirth);
-          const category = getCategory(student.grade);
+          const category = getCategory(student.grade || '');
           return (
             <div key={student.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow flex flex-col">
               <div className="flex-grow">

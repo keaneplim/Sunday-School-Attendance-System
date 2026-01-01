@@ -1160,8 +1160,7 @@ export function printNameTagWithOptions(student: Student, options: {
   forceMethod?: 'popup' | 'mobile' | 'desktop' | 'download';
   showPreview?: boolean;
 } = {}) {
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
+  const category = getCategory(student.grade);
   
   switch (options.forceMethod) {
     case 'popup':
@@ -1180,8 +1179,7 @@ export function printNameTagWithOptions(student: Student, options: {
 
 // Debug function to test different print methods
 export function debugPrintMethods(student: Student) {
-  const age = calculateAge(student.dateOfBirth);
-  const category = getCategory(age);
+  const category = getCategory(student.grade);
   
   console.log('=== Debug Print Methods ===');
   console.log('Student:', student);
