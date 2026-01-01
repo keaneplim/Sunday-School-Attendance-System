@@ -295,7 +295,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Student Management</h2>
