@@ -131,22 +131,22 @@ export const Reports: React.FC = () => {
   }
   
   return (
-    <div id="report-container" className="p-6 max-w-7xl mx-auto">
+    <div id="report-container" className="p-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">
             Attendance Reports
           </h2>
           <p className="text-gray-600">Analyze attendance patterns and trends</p>
-          <p className="text-[10px] text-gray-400 mt-1">V1.0.1.9</p>
+          <p className="text-[10px] text-gray-400 mt-1">V1.0.2.1</p>
         </div>
         <button onClick={handlePrint} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2">
           <Download className="h-4 w-4" />
-          <span>Export Report</span>
+          <span className="text-[clamp(0.875rem,2.5vw,1rem)]">Export Report</span>
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
         <div className="flex items-center space-x-2 mb-4">
           <Filter className="h-5 w-5 text-gray-400" />
           <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
@@ -208,7 +208,7 @@ export const Reports: React.FC = () => {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => (
-          <div key={index} className="stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div key={index} className="stat-card bg-white rounded-xl shadow-sm border border-gray-200 p-8">
             <div>
               <p className="text-sm font-medium text-gray-600">{stat.title}</p>
               <p className="font-bold text-gray-900 mt-1 text-[clamp(1.5rem,5vw,2.25rem)]">{stat.value}</p>
@@ -218,7 +218,7 @@ export const Reports: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="print-card bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="print-card bg-white rounded-xl shadow-sm border border-gray-200 p-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Session Breakdown</h3>
           <div className="space-y-4">
             {Object.entries(sessionBreakdown).map(([time, count]) => {
@@ -238,7 +238,7 @@ export const Reports: React.FC = () => {
           </div>
         </div>
 
-        <div className="print-card bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="print-card bg-white rounded-xl shadow-sm border border-gray-200 p-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Age Group Breakdown</h3>
           <div className="space-y-4">
             {Object.keys(categoryBreakdown).length > 0 ? Object.entries(categoryBreakdown).map(([category, count]) => {
@@ -261,7 +261,7 @@ export const Reports: React.FC = () => {
         </div>
       </div>
       
-      <div className="print-card bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
+      <div className="print-card bg-white rounded-xl shadow-sm border border-gray-200 p-8 mt-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Attendance</h3>
           <div className="overflow-x-auto">
               <table className="w-full text-left">
