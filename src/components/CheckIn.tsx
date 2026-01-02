@@ -84,7 +84,7 @@ export const CheckIn: React.FC = () => {
 
   if (isCheckedIn && selectedStudent) {
     return (
-      <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <div className="p-8 max-w-4xl mx-auto">
         <div className="text-center">
           <div className="mb-8">
             <div className="bg-green-100 rounded-full p-4 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
@@ -103,7 +103,7 @@ export const CheckIn: React.FC = () => {
   }
 
   return (
-    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+    <div className="p-8 max-w-4xl mx-auto">
       <div className="mb-8">
         <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Student Check-in</h2>
         <p className="text-gray-600">
@@ -126,7 +126,7 @@ export const CheckIn: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
@@ -147,7 +147,7 @@ export const CheckIn: React.FC = () => {
               const age = calculateAge(student.dateOfBirth);
               const category = getCategory(student.grade || '');
               return (
-                <div key={student.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <div key={student.id} className="flex items-center justify-between p-8 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                   <div className="flex-1">
                     <div className="flex items-center space-x-3">
                       <div>
