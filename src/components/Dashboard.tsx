@@ -3,6 +3,7 @@ import { AlertCircle, AlertTriangle } from 'lucide-react';
 import { getStudents, getAttendanceRecords, isSunday, getCurrentSession, clearAllData, verifyClearDataPassword } from '../utils/database';
 import { Student, AttendanceRecord } from '../types';
 import { format } from 'date-fns';
+import { PasswordConfirmModal } from './PasswordConfirmModal';
 
 interface DashboardProps {
   adminSecret: string;
@@ -12,6 +13,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ adminSecret }) => {
   const [students, setStudents] = useState<Student[]>([]);
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isClearDataModalOpen, setIsClearDataModalOpen] = useState(false);
+  const [clearDataError, setClearDataError] = useState('');
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -93,33 +96,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ adminSecret }) => {
 
   
   // --- START: SECURITY IMPROVEMENT ---
-  // Updated handleClearData function no longer prompts for a password
-  const handleClearData = async () => {
-    // 1. Prompt for the special, high-security password
-    const password = prompt("DANGER: This action is irreversible. Please enter the master password to clear all data.");
+  // Opens the modal instead of using window.prompt
+  const handleClearDataClick = () => {
+    setClearDataError('');
+    setIsClearDataModalOpen(true);
+  };
 
-    if (!password) return; // User cancelled
-
-    // 2. Verify the password with the backend
+  const handleConfirmClearData = async (password: string) => {
+    // 1. Verify the password with the backend
     const isPasswordCorrect = await verifyClearDataPassword(password, adminSecret);
 
     if (isPasswordCorrect) {
-        // 3. If password was correct, ask for final confirmation
-        const confirmation = window.confirm("Password correct. FINAL CONFIRMATION: Are you sure you want to permanently delete all student and attendance records?");
-        if (confirmation) {
-            try {
-                // 4. Proceed with deletion
-                await clearAllData(adminSecret);
-                alert("All application data has been cleared successfully.");
-                fetchData(); // Refresh dashboard
-            } catch (error) {
-                alert("An error occurred while clearing the data.");
-                console.error(error);
-            }
+        try {
+            // 2. Proceed with deletion
+            await clearAllData(adminSecret);
+            alert("All application data has been cleared successfully.");
+            setIsClearDataModalOpen(false);
+            fetchData(); // Refresh dashboard
+        } catch (error) {
+            setClearDataError("An error occurred while clearing the data.");
+            console.error(error);
         }
     } else {
-        // 5. If password was incorrect
-        alert("Incorrect password. Data clearing has been cancelled.");
+        // 3. If password was incorrect
+        setClearDataError("Incorrect password.");
     }
   };
   
@@ -220,7 +220,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ adminSecret }) => {
                     </div>
                     <div className="mt-4">
                         <button
-                            onClick={handleClearData}
+                            onClick={handleClearDataClick}
                             className="bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >
                             Clear All Data
@@ -231,6 +231,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ adminSecret }) => {
         </div>
       </div> 
 
+      <PasswordConfirmModal
+        isOpen={isClearDataModalOpen}
+        title="Clear All Data?"
+        message="DANGER: This action is irreversible. It will permanently delete every student and all attendance history. Please enter the master password to confirm."
+        confirmLabel="Clear All Data"
+        onConfirm={handleConfirmClearData}
+        onCancel={() => setIsClearDataModalOpen(false)}
+        errorMessage={clearDataError}
+      />
     </div>
   );
 };

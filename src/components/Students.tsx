@@ -3,6 +3,7 @@ import { Plus, Search, Edit, User, Phone, Calendar, AlertTriangle, Trash2 } from
 import { getStudents, addStudent, updateStudent, deleteStudent, calculateAge, getCategory } from '../utils/database';
 import { Student } from '../types';
 import { format } from 'date-fns';
+import { ConfirmModal } from './ConfirmModal';
 
 // This StudentForm component remains unchanged and should be at the top of the file.
 const StudentForm = ({
@@ -178,6 +179,16 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
     parentPhone: ''
   });
 
+  const [deleteModalState, setDeleteModalState] = useState<{
+    isOpen: boolean;
+    studentId: string | null;
+    studentName: string;
+  }>({
+    isOpen: false,
+    studentId: null,
+    studentName: '',
+  });
+
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -290,30 +301,34 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
     setShowAddForm(true);
   };
 
-  const handleDelete = async (studentId: string, studentName: string) => {
+  const handleDeleteClick = (studentId: string, studentName: string) => {
     if (!isAdmin) {
       alert("You must be an admin to delete students.");
       return;
     }
+    setDeleteModalState({
+      isOpen: true,
+      studentId,
+      studentName,
+    });
+  };
 
-    if (window.confirm(`Are you sure you want to remove ${studentName}? This action cannot be undone.`)) {
-      // --- ADD THIS CHECK ---
-      if (!adminSecret) {
-        alert("Authentication error. Please log out and log back in.");
+  const handleConfirmDelete = async () => {
+      if (!adminSecret || !deleteModalState.studentId) {
+        setDeleteModalState(prev => ({ ...prev, isOpen: false }));
         return;
       }
-      // --- END OF ADDED CHECK ---
       
       try {
-        // Now TypeScript knows adminSecret is a string here
-        await deleteStudent(studentId, adminSecret);
+        await deleteStudent(deleteModalState.studentId, adminSecret);
         await fetchStudents();
+        setDeleteModalState({ isOpen: false, studentId: null, studentName: '' });
       } catch (error) {
         alert("An error occurred while deleting the student. You may not have permission.");
         console.error(error);
+        setDeleteModalState(prev => ({ ...prev, isOpen: false }));
       }
-    }
-};
+  };
   // --- END: SECURITY IMPROVEMENT ---
 
   if (isLoading) {
@@ -410,7 +425,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
                     <Edit className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(student.id, `${student.firstName} ${student.lastName}`)}
+                    onClick={() => handleDeleteClick(student.id, `${student.firstName} ${student.lastName}`)}
                     className="text-gray-500 hover:text-red-600 p-2 rounded-full transition-colors"
                     title="Remove Student"
                   >
@@ -434,6 +449,16 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
           </p>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={deleteModalState.isOpen}
+        title="Remove Student"
+        message={`Are you sure you want to remove ${deleteModalState.studentName}? This action cannot be undone.`}
+        confirmLabel="Remove Student"
+        isDangerous={true}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteModalState(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };
