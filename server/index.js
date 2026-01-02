@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg'); // <-- This line is crucial
 const cors = require('cors');

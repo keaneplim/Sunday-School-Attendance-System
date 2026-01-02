@@ -158,8 +158,9 @@ export function getCurrentSession(): string {
 
   if (time < 1030) return '09:30';
   if (time < 1330) return '11:00';
-  if (time < 1500) return '14:00';
-  return '16:00';
+  if (time < 1530) return '14:00';
+  if (time < 1730) return '16:00';
+
 }
 
 // --- Desktop printing method (iframe) ---
