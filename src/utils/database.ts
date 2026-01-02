@@ -126,7 +126,7 @@ export function calculateAge(dateOfBirth: string): number {
 }
 
 export function getCategory(grade: string): string {
-  if (!grade) return 'Unknown';
+  if (!grade || grade === 'Unknown') return 'Unknown';
   
   // Kelas Love: Belum Sekolah - TK
   if (grade === 'Belum Sekolah' || grade === 'Nursery' || grade === 'TK') return 'Love';
@@ -137,7 +137,9 @@ export function getCategory(grade: string): string {
   // Kelas Faith: SD 4 - SD 6
   if (['SD 4', 'SD 5', 'SD 6'].includes(grade)) return 'Faith';
   
-  return 'Teenager';
+  if (grade === 'Teenager') return 'Teenager';
+
+  return 'Unknown';
 }
 
 export function isSunday(): boolean {

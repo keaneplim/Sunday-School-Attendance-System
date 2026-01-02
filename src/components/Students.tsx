@@ -20,7 +20,7 @@ const StudentForm = ({
   formErrors: { firstName?: string; lastName?: string; nickname?: string; parentPhone?: string; };
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
 }) => (
-  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
     <h3 className="text-lg font-semibold text-gray-900 mb-4">
       {editingStudent ? 'Edit Student' : 'Add New Student'}
     </h3>
@@ -325,7 +325,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h2 className="font-bold text-gray-900 mb-2 text-[clamp(1.25rem,4vw,1.875rem)]">Student Management</h2>
-          <p className="text-[10px] text-gray-400 mt-1">V1.0.2.0</p>
+          <p className="text-[10px] text-gray-400 mt-1">V1.0.2.1</p>
         </div>
         {/* The "Add Student" button is now ALWAYS visible */}
         <button onClick={() => setShowAddForm(true)} className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center space-x-2">
@@ -346,7 +346,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
         />
       )}
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
@@ -364,7 +364,7 @@ export const Students: React.FC<StudentsProps> = ({ adminSecret, isAdmin  }) => 
           const age = calculateAge(student.dateOfBirth);
           const category = getCategory(student.grade || '');
           return (
-            <div key={student.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow flex flex-col">
+            <div key={student.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 hover:shadow-md transition-shadow flex flex-col">
               <div className="flex-grow">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center space-x-3">
