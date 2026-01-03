@@ -1,6 +1,21 @@
 # Session History
 
 ---
+**Timestamp:** 2026-01-02
+
+**Goal:** Fix database schema inconsistencies, overhaul UI spacing, and implement custom security modals.
+
+**Actions:**
+1.  **Database Fixes:** Provided SQL to add the missing `grade` column and update existing `NULL` records to 'Unknown'.
+2.  **UI Standardization:** Updated padding from `p-6` to `p-8` across all main pages (Check-In, Students, Dashboard, Reports).
+3.  **Responsive Text:** Implemented `clamp()` typography for headings and the "Export Report" button.
+4.  **Custom Modals:** Created `ConfirmModal` and `PasswordConfirmModal` to replace native browser `confirm()` and `prompt()` dialogs for a professional look.
+5.  **Local Setup:** Added `dotenv` support to the backend and guided the user through creating a local `.env` file and connecting to Supabase.
+
+**Outcome:**
+- The application is now consistent in style, responsive on mobile/desktop, and has professional-grade security modals. Local development environment is fully functional.
+
+---
 **Timestamp:** 2025-11-12 05:00 PM
 
 **Goal:** Make Android printing direct, skipping the preview page.

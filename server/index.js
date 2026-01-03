@@ -56,6 +56,12 @@ app.post('/api/admin-login', checkAuth, (req, res) => {
 
 app.post('/api/verify-clear-data-password', checkAdmin, async (req, res) => {
     const { password } = req.body;
+    
+    // Debug logging
+    console.log('[DEBUG] Clear Data Attempt:');
+    console.log(`- Received length: ${password ? password.length : 0}`);
+    console.log(`- Stored length: ${CLEAR_DATA_PASSWORD ? CLEAR_DATA_PASSWORD.length : 'UNDEFINED'}`);
+    
     if (password === CLEAR_DATA_PASSWORD) {
         res.json({ success: true });
     } else {
