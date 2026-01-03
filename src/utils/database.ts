@@ -39,6 +39,7 @@ export async function verifyClearDataPassword(password: string, adminSecret: str
         headers: {
             'Content-Type': 'application/json',
             'admin-secret': adminSecret,
+            'role': 'admin'
         },
         body: JSON.stringify({ password }),
     });
