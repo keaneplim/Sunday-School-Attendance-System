@@ -92,6 +92,7 @@ export async function clearAllData(adminSecret: string): Promise<void> {
     method: 'DELETE',
     headers: {
       'admin-secret': adminSecret,
+      'role': 'admin'
     }
   });
 }
